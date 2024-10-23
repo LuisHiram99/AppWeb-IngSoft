@@ -1,0 +1,33 @@
+{% extends "mainPage/base.html" %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <h1>Perfil de usuario</h1>
+    <h2>la url es: {{user.perfil}} </h2>
+    <div class="content-section">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="media">
+                    <img class="rounded-circle img-fluid" src="{{ user.perfil.image.url }}" style="width: 150px; height: 150px;">
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="media-body">
+                    <h2 class="account-heading">{{ user.username }}</h2>
+                    <p class="text-secondary">{{ user.email }}</p>
+                </div>
+            </div>
+        </div>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4"> Información de Perfil </legend>
+                {{ u_form | crispy }}
+                {{ p_form | crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit"> Actualizar</button>
+            </div>
+        </form>
+    </div>
+{% endblock content %}
