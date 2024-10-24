@@ -1,15 +1,66 @@
 {% extends "mainPage/base.html" %}
-{% load crispy_forms_filters %}
-{% load crispy_forms_tags %}
 
-{% block content%}
-<!DOCTYPE html>
-<html>
+
+{% block content %}
+<html lang="en">
 <head>
-    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foro de Reportes</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
-<h1> Reportes!!</h1>
+    <div class="container">
+        <h1>Foro de Reportes</h1>
+        <div class="post-form">
+            <form id="postForm" method="POST" action="{% url 'reportes' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group-inline">
+                    <input type="text" id="postTitle" name="title" placeholder="Escribe el título..." required />
+                    <input type="text" id="postArea" name="area" placeholder="Escribe el área..." required />
+                    <select id="postCategory" name="category" required>
+                        <option value="" disabled selected>Selecciona una categoría</option>
+                        <option value="Alto">Alto</option>
+                        <option value="Medio">Medio</option>
+                        <option value="Bajo">Bajo</option>
+                    </select>
+                </div>
+                <textarea id="postContent" name="content" placeholder="Escribe tu reporte aquí..." required></textarea>
+                <input type="file" id="postImage" name="image" accept="image/*" />
+                <button type="submit">Post</button>
+            </form>
+        </div>
+
+        <div id="postList" class="post-list">
+            {% for reporte in reportes %}
+                <div class="post">
+                    <h2>{{ reporte.title }}</h2>
+                    <p><strong>Área:</strong> {{ reporte.area }}</p>
+                    <p><strong>Categoría:</strong> {{ reporte.category }}</p>
+                    <p>{{ reporte.content }}</p>
+                    {% if reporte.image %}
+                        <img src="{{ reporte.image.url }}" alt="Post Image" />
+                        <br>
+                        <a href="{{ reporte.image.url }}" download>
+                            <button>Descargar Imagen</button>
+                        </a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <script src="{% static 'scripts.js' %}"></script>
 </body>
 </html>
+
 {% endblock %}

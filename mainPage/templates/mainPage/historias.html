@@ -1,5 +1,8 @@
 {% extends 'mainPage/base.html' %}
+
 {% block content %}
+{% load static %}
+<link href="{% static 'main.css' %}">
     <main>
         <h1>Historias de usuario</h1>
         <button id="add-task-button">Añadir nueva historia de usuario</button>

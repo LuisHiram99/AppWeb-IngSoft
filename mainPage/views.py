@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 from django.shortcuts import render,redirect
 from django.contrib.auth import login,logout,authenticate
+from .models import Reportes
 
 def equipo(request):
     if request.user.is_authenticated:
@@ -20,8 +21,22 @@ def equipo(request):
 
 
 
-def reportes(request):
-    return render(request,'mainPage/reportes.html')
+def Report(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        area = request.POST.get('area')
+        category = request.POST.get('category')
+        content = request.POST.get('content')
+        image = request.FILES.get('image')
+
+        #crear un nuevo reporte
+        nuevo_reporte = Reportes(title=title, area=area, category=category, content=content, image=image)
+        nuevo_reporte.save()
+
+        return redirect("mainPage/reportes.html")
+
+    todos_reportes = Reportes.objects.all()
+    return render(request, "mainPage/reportes.html", {'reportes': todos_reportes})
 
 def historias(request):
     return render(request,'mainPage/historias.html')
