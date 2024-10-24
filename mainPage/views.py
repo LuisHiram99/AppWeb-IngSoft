@@ -25,20 +25,25 @@ def equipo(request):
 
 def Report(request):
     if request.method == 'POST':
-        title = request.POST.get('title')
-        area = request.POST.get('area')
-        category = request.POST.get('category')
-        content = request.POST.get('content')
+        title = request.POST['title']
+        area = request.POST['area']
+        category = request.POST['category']
+        content = request.POST['content']
         image = request.FILES.get('image')
 
-        #crear un nuevo reporte
-        nuevo_reporte = Reportes(title=title, area=area, category=category, content=content, image=image)
-        nuevo_reporte.save()
+        nuevo_reporte = Reportes.objects.create(
+            title=title,
+            area=area,
+            category=category,
+            content=content,
+            image=image
+        )
 
-        return redirect("reportes.html")
+        reportes_list = Reportes.objects.all()
+        return render(request, 'reportes.html', {'reportes': reportes_list})
 
-    todos_reportes = Reportes.objects.all()
-    return render(request, "reportes.html", {'reportes': todos_reportes})
+    reportes_list = Reportes.objects.all()
+    return render(request, 'reportes.html', {'reportes': reportes_list})
 
 
 def historias(request):
