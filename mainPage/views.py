@@ -5,13 +5,26 @@ from django.shortcuts import render,redirect
 from django.contrib.auth import login,logout,authenticate
 
 def equipo(request):
-    return render(request,'mainPage/equipo.html')
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            request.user.HacerGestor()
+        soyGP = request.user.SoyGestor()
+        usuarios = User.objects.exclude(id=request.user.id).all()
+        context={
+            'soyGP': soyGP,
+            'usuarios': usuarios
+        }
+        return render(request,'mainPage/equipo.html',context)
+    else:
+        redirect('login')
+
+
 
 def reportes(request):
     return render(request,'mainPage/reportes.html')
 
-def Historias(request):
-    return render(request,"mainPage/historias.html")
+def hu(request):
+    return render(request,'mainPage/hu.html')
 def home (request):
     return render(request, 'mainPage/home.html')
 def outside (request):
