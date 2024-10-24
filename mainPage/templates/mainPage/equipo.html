@@ -1,15 +1,50 @@
 {% extends "mainPage/base.html" %}
-{% load crispy_forms_filters %}
-{% load crispy_forms_tags %}
 
-{% block content%}
-<!DOCTYPE html>
-<html>
-<head>
-    <title></title>
-</head>
-<body>
-<h1> Equipo!!</h1>
-</body>
-</html>
+{% block content %}
+
+<h1>{{equipoo}}
+{% if soyGP %}
+    <div class="container text-center">
+        <h1>Miembros del equipo</h1>
+        <table class="table table-hover">
+            <tr>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Rol</th>
+                <th>cambiar rol</th>
+            </tr>
+            {% for usuario in usuarios %}
+                <tr>
+                    <td>{{usuario.first_name}}</td>
+                    <td>{{usuario.last_name}}</td>
+                    <td>{{usuario.rol}}</td>
+                    <td><form method="POST">
+                        <label for="CR">Rol: </label>
+                        <select name="CambiarRol" id="CR">
+                          <option value="2">2</option>
+                          <option value="1">1</option>
+                        </select>
+                        <input type="submit" value="Enviar" />
+                  </form></td>
+                </tr>
+            {% endfor %}
+
+        </table>
+
+    </div>
+{% else %}
+    <div>
+        <h1>Solo los gestores de proyecto pueden acceder</h1>
+        <h2>Identificate como uno:</h2> 
+        <form action="{% url 'equipo' %}" method="POST">
+            {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" name="hazmeGP">
+            Hazme gestor de proyecto
+        </button>
+        </form>
+    </div>
+    
+{% endif %}
+
 {% endblock %}
