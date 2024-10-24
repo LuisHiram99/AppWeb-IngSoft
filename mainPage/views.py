@@ -10,8 +10,8 @@ def equipo(request):
 def reportes(request):
     return render(request,'mainPage/reportes.html')
 
-def hu(request):
-    return render(request,'mainPage/hu.html')
+def Historias(request):
+    return render(request,"mainPage/historias.html")
 def home (request):
     return render(request, 'mainPage/home.html')
 def outside (request):

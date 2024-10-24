@@ -156,6 +156,7 @@ button:hover {
     display: flex;
     justify-content: space-between;
     background-color: var(--darkest);
+    color: var(--light);
     padding: 1rem;
     border-radius: 1rem;
     margin-bottom: 1rem;
