@@ -15,7 +15,7 @@
     <div class="container">
         <h1>Foro de Reportes</h1>
         <div class="post-form">
-            <form id="postForm" method="POST" action="{% url 'reportes' %}" enctype="multipart/form-data">
+            <form id="postForm" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form-group-inline">
                     <input type="text" id="postTitle" name="title" placeholder="Escribe el título..." required />
@@ -31,6 +31,7 @@
                 <input type="file" id="postImage" name="image" accept="image/*" />
                 <button type="submit">Post</button>
             </form>
+
         </div>
 
         <div id="postList" class="post-list">
