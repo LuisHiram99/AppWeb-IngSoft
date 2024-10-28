@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 from django.shortcuts import render,redirect
 from django.contrib.auth import login,logout,authenticate
-from .models import Reportes
+from .models import Reportes,HistoriaUsuario
 
 def equipo(request):
     if request.user.is_authenticated:
@@ -33,7 +33,7 @@ def Report(request):
         nuevo_reporte = Reportes(title=title, area=area, category=category, content=content, image=image)
         nuevo_reporte.save()
 
-        return redirect("mainPage/reportes.html")
+        return redirect("reportes")
 
     todos_reportes = Reportes.objects.all()
     return render(request, "mainPage/reportes.html", {'reportes': todos_reportes})
@@ -47,13 +47,11 @@ def outside (request):
 
 def calendario(request):
     if request.user.is_authenticated:
-        fei = request.user.ObtenerFI()
-        fef = request.user.ObtenerFF()
-        print(fei)
+        usuario = User.objects.get(username=request.user.username)
+        eventos = HistoriaUsuario.objects.filter(miembroAsignado=usuario)
         context = {
-            "fi": fei,
-            "ff": fef
-            }
+        "eventos": eventos
+        }
         return render(request,'mainPage/calendario.html',context)
     else:
         return redirect('login')

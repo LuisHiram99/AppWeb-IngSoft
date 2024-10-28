@@ -2,9 +2,9 @@
 {% load static %}
 
 {% block content %}
-<p>Hola, la fecha es {{fi}}</p>
-<p>Hola, la fecha final es {{ff}}</p>
-<link type='text/css' rel="stylesheet" href="{% static 'css/main.css' %}">
+
+<h3>{{eventos.0.proyecto.nombre}}</h3>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
@@ -16,49 +16,60 @@
                 end: 'today prev,next'
             },
             events: [
-                {
-                    title: 'Clase ing de software',
-                    start: '{{ fi|safe }}',
-                    end: '{{ ff|safe }}',
-                    color: 'red',
-                    borderColor: 'black',
-                },
-                {
-                    title: 'Clase de programación',
-                    start: '2024-08-30',
-                    end: '2024-12-15'
-                },
-                {
-                    title: 'Clase de programación1',
-                    start: '2024-08-30',
-                    end: '2024-12-15'
-                },
-                {
-                    title: 'Clase de programación2',
-                    start: '2024-08-30',
-                    end: '2024-12-15'
-                },
-                {
-                    title: 'Clase de programación3',
-                    start: '2024-08-30',
-                    end: '2024-12-15'
-                },
-                {
-                    title: 'Clase de programación4',
-                    start: '2024-08-30',
-                    end: '2024-12-15'
-                },
-                {
-                    title: 'Clase de programación5',
-                    start: '2024-08-30',
-                    end: '2024-12-15'
-                }
+                {% for evento in eventos %}
+                    {
+                        title: '{{ evento.nombre|safe }}',
+                        start: '{{ evento.fechaInicio | date:"Y-m-d" }}',
+                        end: '{{ evento.fechaFin | date:"Y-m-d" }}',
+                        color: '{{ evento.ObtenerColor|safe }}',
+                        borderColor: 'black',
+                        extendedProps: {
+                            numMiembros: '{{ evento.miembroAsignado.all.count }}',
+                            proyecto: '{{ evento.proyecto.nombre|safe }}',
+                            {% for miembro in evento.miembroAsignado.all %}
+                                miembro{{ forloop.counter }}: '{{ miembro.username|safe }}',
+                            {% endfor %}
+                          },
+                        description: 'aqui pondre una descripción'
+                    },
+                {% endfor %}
             ],
-            dayMaxEvents: true
+            eventClick: function(info) {
+                var m1 = info.event.extendedProps.miembro1
+                var m2 = info.event.extendedProps.miembro2
+                var m3 = info.event.extendedProps.miembro3
+                var m4 = info.event.extendedProps.miembro4
+                var m5 = info.event.extendedProps.miembro5
+                
+                var infoHU = 'HU: ' + info.event.title + '\nProyecto perteneciente: ' 
+                + info.event.extendedProps.proyecto + '\nDescripción: ' 
+                + info.event.extendedProps.description
+
+                switch (info.event.extendedProps.numMiembros) {
+                    case '1':
+                        alert(infoHU + '\nUsuarios responsanbles: ' + m1); 
+                        break;
+                    case '2':
+                        alert(infoHU + '\nUsuarios responsanbles: ' + m1 + ' y ' + m2); 
+                        break;
+                    case '3':
+                        alert(infoHU + '\nUsuarios responsanbles: ' + m1 + ', ' + m2 + ' y ' + m3); 
+                        break;
+                    case '4':
+                        alert(infoHU + '\nUsuarios responsanbles: ' + m1 + ', ' + m2 + ', ' + m3 +' y ' + m4); 
+                        break;
+                    default:
+                        alert(infoHU + '\nUsuarios responsanbles: ' + m1 + ', ' + m2 + ', ' + m3 + ', ' + m4 + ' y ' + m5); 
+                  }
+            
+                // change the border color just for fun
+                info.el.style.borderColor = 'red';
+              },
+            dayMaxEvents: true //permite  agregar lista cuando hay muchos eventos
         });
         calendar.render();
         calendar.setOption('locale','es');
-    });
+    });   
 </script>
 
 
