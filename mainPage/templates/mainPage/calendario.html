@@ -25,12 +25,16 @@
                         borderColor: 'black',
                         extendedProps: {
                             numMiembros: '{{ evento.miembroAsignado.all.count }}',
+                            numCriterios: '{{ evento.criterios.all.count }}',
                             proyecto: '{{ evento.proyecto.nombre|safe }}',
+                            descripcion: '{{ evento.descripcion|safe }}',
+                            {% for criterio in evento.criterios.all %}
+                                criterio{{ forloop.counter }}: '{{ criterio.descripcion|safe }}',
+                            {% endfor %}
                             {% for miembro in evento.miembroAsignado.all %}
                                 miembro{{ forloop.counter }}: '{{ miembro.username|safe }}',
                             {% endfor %}
                           },
-                        description: 'aqui pondre una descripción'
                     },
                 {% endfor %}
             ],
@@ -40,29 +44,59 @@
                 var m3 = info.event.extendedProps.miembro3
                 var m4 = info.event.extendedProps.miembro4
                 var m5 = info.event.extendedProps.miembro5
+                var c1 = info.event.extendedProps.criterio1
+                var c2 = info.event.extendedProps.criterio2
+                var c3 = info.event.extendedProps.criterio3
+                var c4 = info.event.extendedProps.criterio4
+                var c5 = info.event.extendedProps.criterio5
+                
                 
                 var infoHU = 'HU: ' + info.event.title + '\nProyecto perteneciente: ' 
                 + info.event.extendedProps.proyecto + '\nDescripción: ' 
-                + info.event.extendedProps.description
+                + info.event.extendedProps.descripcion
 
                 switch (info.event.extendedProps.numMiembros) {
                     case '1':
-                        alert(infoHU + '\nUsuarios responsanbles: ' + m1); 
+                        infoHU =infoHU + '\nUsuarios responsanbles:\n- ' + m1;
                         break;
                     case '2':
-                        alert(infoHU + '\nUsuarios responsanbles: ' + m1 + ' y ' + m2); 
+                        infoHU = infoHU + '\nUsuarios responsanbles:\n-' + m1 + '\n-' + m2;
                         break;
                     case '3':
-                        alert(infoHU + '\nUsuarios responsanbles: ' + m1 + ', ' + m2 + ' y ' + m3); 
+                        infoHU = infoHU + '\nUsuarios responsanbles:\n-' + m1 + '\n-' + m2 + '\n-' + m3;
                         break;
                     case '4':
-                        alert(infoHU + '\nUsuarios responsanbles: ' + m1 + ', ' + m2 + ', ' + m3 +' y ' + m4); 
+                        infoHU = infoHU + '\nUsuarios responsanbles:\n-' + m1 + '\n-' + m2 + '\n-' + m3 
+                        +'\n-' + m4;
                         break;
                     default:
-                        alert(infoHU + '\nUsuarios responsanbles: ' + m1 + ', ' + m2 + ', ' + m3 + ', ' + m4 + ' y ' + m5); 
+                        infoHU = infoHU + '\nUsuarios responsanbles:\n-' + m1 + '\n-' + m2 + '\n-' + m3 
+                        + '\n-' + m4 + '\n-' + m5;
                   }
+
+                  infoHU = infoHU + '\nCriterios de Aceptacion:'
+
+                  switch (info.event.extendedProps.numCriterios) {
+                    case '1':
+                        infoHU = infoHU + '\nCriterio 1: ' + c1; 
+                        break;
+                    case '2':
+                        infoHU = infoHU + '\nCriterio 1: ' + c1 + '\nCriterio 2: ' + c2;
+                        break;
+                    case '3':
+                        infoHU = infoHU + '\nCriterio 1: ' + c1 + '\nCriterio 2: ' + c2 + '\nCriterio 3: ' + c3; 
+                        break;
+                    case '4':
+                        infoHU = infoHU + '\nCriterio 1: ' + c1 + '\nCriterio 2: ' + c2 + '\nCriterio 3: ' + c3
+                        + '\nCriterio 4: ' + c4; 
+                        break;
+                    default:
+                        infoHU = infoHU + '\nCriterio 1: ' + c1 + '\nCriterio 2: ' + c2 + '\nCriterio 3: ' + c3
+                    + '\nCriterio 4: ' + c4; 
+                  }
+                  alert(infoHU);
             
-                // change the border color just for fun
+                // borde de color
                 info.el.style.borderColor = 'red';
               },
             dayMaxEvents: true //permite  agregar lista cuando hay muchos eventos

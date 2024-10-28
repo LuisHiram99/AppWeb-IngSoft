@@ -5,17 +5,28 @@ from users.models import Profile
 
 # Create your models here.
 
+class CriterioAceptacion(models.Model):
+    descripcion = models.TextField('Descripción de la HU',blank=True,null=True)
+    historia = models.ForeignKey('HistoriaUsuario',on_delete=models.CASCADE,
+                                 related_name="criterios", blank=True)
+    
+    def __str__(self):
+        return self.descripcion
+
 class HistoriaUsuario(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField('Nombre de la hu', max_length=70,blank=False,null=False)
     fechaInicio = models.DateField('Fecha de inicio',blank=False,null=False)
     fechaFin = models.DateField('Fecha de finalización',blank=False,null=False)
     estado = models.BooleanField(default= False,blank=True,null=False)
-    #criterio_acept
-    #descripcion
+    descripcion = models.TextField('Descripción de la HU',blank=True,null=True)
+    #criterio_aceptacion = las HU tienen una relación OneToMany con Historias de usuario, 
+    #ver la def de la clase ↑
     miembroAsignado = models.ManyToManyField('User',related_name="historias",blank=False)
 
     proyecto = models.ForeignKey('Proyecto',on_delete=models.CASCADE,related_name="historias", blank=True)
+    #consulta para accedar a las historias pertenecientes a cierto proyecto: 
+    #algunProyecto.historias.all()
 
     def __str__(self):
         datosFila = "Nombre historia: " + self.nombre + " - Fecha inicio: " + str(self.fechaInicio)
@@ -34,8 +45,9 @@ class Proyecto(models.Model):
     fechaInicio = models.DateField('Fecha de inicio',blank=False,null=False)
     fechaFin = models.DateField('Fecha de finalización',blank=False,null=False)
     estado = models.BooleanField(default= False,blank=True,null=False) #Esta completo?
-    # rol_miembros = models.SmallIntegerField('Rol de usuario',blank=True,null=True)
-    # id_gestorP = models.PositiveSmallIntegerField('id gestor del proyecto',blank=False,null=False)
+    
+    #el proyecto tiene una relación OneToMany con Historias de usuario, ver la def de la clase ↑
+    
 
     gestorProyecto = models.OneToOneField('User',on_delete=models.CASCADE,blank=True,null=True)
 
