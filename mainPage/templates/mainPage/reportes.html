@@ -1,8 +1,8 @@
-{% extends 'plantilla.html' %}
+ {% extends 'plantilla.html' %}
 
 {% block content %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,11 +27,11 @@
                         <option value="Bajo">Bajo</option>
                     </select>
                 </div>
-                <textarea id="postContent" name="content" placeholder="Escribe tu reporte aquí..." required></textarea>
-                <input type="file" id="postImage" name="image" accept="image/*" />
-                <button type="submit">Post</button>
+                <textarea id="postContent" name="content" placeholder="Escribe tu reporte aquí..." required></textarea><br>
+                <input type="file" id="postImage" name="image" accept="image/*" /><br>
+                <input type="file" id="postDoc" name="doc" accept=".pdf, .txt, .xls, .xlsx" /><br>
+                <button id="Buttonpost" type="submit">Post</button>
             </form>
-
         </div>
 
         <div id="postList" class="post-list">
@@ -43,8 +43,7 @@
                     <p>{{ reporte.content }}</p>
                     {% if reporte.image %}
                         <img src="{{ reporte.image.url }}" alt="Post Image" />
-                        <br>
-                        <a href="{{ reporte.image.url }}" download>
+                            <a href="{{ reporte.image.url }}" download="{{ reporte.image.name|slice:'7:' }}">
                             <button>Descargar Imagen</button>
                         </a>
                     {% endif %}
