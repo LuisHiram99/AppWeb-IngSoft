@@ -1,6 +1,5 @@
 {% load static %}
 
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,9 +8,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    {% comment %} <link rel="stylesheet" href="/static/CSS/base.css"> {% endcomment %}
+    <link rel="stylesheet" href="/static/CSS/base.css">
     <link rel="stylesheet" href="/static/CSS/home.css">
     {% comment %} <link rel="stylesheet" href="/static/CSS/historias.css"> {% endcomment %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 
     {% if title %}
@@ -22,29 +24,31 @@
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'mP-home' %}">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'profile' %}">Perfil</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-content" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Herramientas
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{% url 'equipo' %}">Equipo</a>
+                        <a class="dropdown-item" href="{% url 'reportes' %}">Reportes</a>
+                        <a class="dropdown-item" href="{% url 'historias' %}">Historias de usuario</a>
+                        <a class="dropdown-item" href="{% url 'calendario' %}">Calendario</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
-    <div class="navbar" bg-color="black">
-        {% if user.is_authenticated %}
-            <a class="nav-item nav-link" href="{% url 'mP-home' %}">Inicio</a>
-            <a class="nav-item nav-link" href="{% url 'profile' %}">Perfil</a>
-            <div class="dropdown">
-                <button class="dropbtn">Desplegar
-                    <i class="fa fa-caret-down"></i>
-                </button>
-                <div class="dropdown-content">
-                    <a class="nav-item nav-link" href="{% url 'equipo' %}">Equipo</a>
-                    <a class="nav-item nav-link" href="{% url 'reportes' %}">Reportes</a>
-                    <a class="nav-item nav-link" href="{% url 'historias' %}">Historias de usuario</a>
-                    <a class="nav-item nav-link" href="{% url 'calendario' %}">Calendario</a>
-                </div>
-            </div>
-            <a class="nav-item nav-link" href="{% url 'logout' %}">Cerrar sesión</a>
-        {% else %}
-            <a class="nav-item nav-link" href="{% url 'register' %}">Registerse</a>
-            <a class="nav-item nav-link" href="{% url 'login' %}">Iniciar sesión</a>
-            <a class="nav-item nav-link" href="{% url 'outside' %}"> Inicio</a>
-        {% endif %}
-    </div>
+
     <div>
         {% if messages %}
             {% for message in  messages %}
