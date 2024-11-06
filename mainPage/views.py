@@ -71,11 +71,10 @@ def agregarMiembroGET(request,id_proyecto):
         equipo = Proyecto.objects.get(id=id_proyecto).equipo
         miembros = equipo.miembros
         candidatos = User.objects.exclude(proyectos=str(id_proyecto))
-
         context = {
             'miembros': miembros,
             'id_p': id_proyecto,
-            'candidatos': candidatos
+            'candidatos': candidatos,
         }
 
         return render(request,'mainPage/agregar_miembro.html',context)
@@ -86,6 +85,8 @@ def eliminarMiembro(request,id_proyecto,id_miembro):
     if request.user.is_authenticated:
         if request.method == 'POST':
             miembro = Miembro.objects.get(id=id_miembro)
+            usuario = miembro.usuario
+            usuario.proyectos.remove(id_proyecto)
             miembro.delete()
         new_url = reverse('agregarMiembroGET',args=[id_proyecto])
         return redirect(new_url)
