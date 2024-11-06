@@ -21,7 +21,7 @@
                 <td>{{miembro.usuario.last_name}}</td>
                 <td>{{miembro.usuario.rol}}</td>
                 <td>
-                    <form method="POST" action="/eliminar_miembro/{{id_p}}//{{ miembro.usuario.id }}/">
+                    <form method="POST" action="/eliminarMiembro/{{id_p}}/{{ miembro.id }}/">
                         {% csrf_token %}
                         <input type="submit" name="eliminar-miembro" value="Eliminar miembro" />
                     </form>

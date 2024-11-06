@@ -82,9 +82,13 @@ def agregarMiembroGET(request,id_proyecto):
     else:
         redirect('login')
 
-def eliminarMiembro(request):
+def eliminarMiembro(request,id_proyecto,id_miembro):
     if request.user.is_authenticated:
-        return render(request,'mainPage/eliminar_miembro.html')
+        if request.method == 'POST':
+            miembro = Miembro.objects.get(id=id_miembro)
+            miembro.delete()
+        new_url = reverse('agregarMiembroGET',args=[id_proyecto])
+        return redirect(new_url)
     else:
         redirect('login')
 

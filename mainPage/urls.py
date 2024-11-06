@@ -12,7 +12,7 @@ urlpatterns = [
     path('equipo/', views.equipo, name='equipo'),
     path('agregarMiembro/<int:id_proyecto>/', views.agregarMiembroGET, name='agregarMiembroGET'),
     path('agregarMiembro/<int:id_proyecto>/<int:id_miembro>/', views.agregarMiembro, name='agregarMiembro'),
-    path('eliminarMiembro/<int:id_miembro>/', views.eliminarMiembro, name='eliminarMiembro'),
+    path('eliminarMiembro/<int:id_proyecto>/<int:id_miembro>/', views.eliminarMiembro, name='eliminarMiembro'),
     path('asignarRoles/', views.asignarRoles, name='asignarRoles'),
 
     path('register/', user_views.register, name='register'),
