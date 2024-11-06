@@ -5,7 +5,28 @@ from users.models import Profile
 
 # Create your models here.
 
+class Miembro(models.Model):
+    id = models.AutoField(primary_key=True)
+    usuario = models.ForeignKey('User',on_delete=models.CASCADE,
+                                 related_name="miembros", blank=True)
+    rol = models.PositiveSmallIntegerField('ROL_USUARIO',blank=True)
+    equipo = models.ForeignKey('Equipo',on_delete=models.CASCADE,
+                                 related_name="miembros", blank=True)
+    def __str__(self):
+        datosFila = "Nombre miembro: " + self.usuario.username
+        return datosFila
+
+class Equipo(models.Model):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=70,blank=True,null=True)
+
+    def __str__(self):
+        datosFila = "Nombre equipo: " + self.nombre 
+        return datosFila
+
+
 class CriterioAceptacion(models.Model):
+    id = models.AutoField(primary_key=True)
     descripcion = models.TextField('Descripción de la HU',blank=True,null=True)
     historia = models.ForeignKey('HistoriaUsuario',on_delete=models.CASCADE,
                                  related_name="criterios", blank=True)
@@ -47,9 +68,8 @@ class Proyecto(models.Model):
     estado = models.BooleanField(default= False,blank=True,null=False) #Esta completo?
     
     #el proyecto tiene una relación OneToMany con Historias de usuario, ver la def de la clase ↑
-    
-
-    gestorProyecto = models.OneToOneField('User',on_delete=models.CASCADE,blank=True,null=True)
+    equipo = models.OneToOneField(Equipo,on_delete=models.CASCADE,related_name="proyecto",blank=True)
+    gestorProyecto = models.ForeignKey('User',on_delete=models.CASCADE,blank=True,null=True)
 
     def __str__(self):
         datosFila = "Nombre proyecto: " + self.nombre + " - Fecha inicio: " + str(self.fechaInicio)
@@ -57,8 +77,7 @@ class Proyecto(models.Model):
         return datosFila
 
 class User(AbstractUser):
-    
-    proyectos = models.ManyToManyField(Proyecto, blank=True)
+    proyectos = models.ManyToManyField(Proyecto,related_name="usuarios", blank=True)
     estado = models.BooleanField(default=True, blank=True, null=False)
     rol = models.SmallIntegerField(default=0, blank=True, null=False)
     gestor_proyecto = models.BooleanField(default=False, blank=True, null=False)
@@ -98,3 +117,4 @@ class Reportes(models.Model):
 
     def __str__(self):
         return self.title
+    

@@ -1,0 +1,65 @@
+{% extends "mainPage/base.html" %}
+
+
+{% block content %}
+
+<h1>Aquí agregaré un miembro</h1>
+
+<div class="contenido text-center">
+    <h1 style='text-align:center; vertical-align:middle'>Usuarios que son miembros del equipo</h1>
+    <hr>
+    <table class="table table-hover">
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Rol</th>
+            <th>Eliminar</th>
+        </tr>
+        {% for miembro in miembros.all %}
+            <tr>
+                <td>{{miembro.usuario.first_name}}</td>
+                <td>{{miembro.usuario.last_name}}</td>
+                <td>{{miembro.usuario.rol}}</td>
+                <td>
+                    <form method="POST" action="/eliminar_miembro/{{id_p}}//{{ miembro.usuario.id }}/">
+                        {% csrf_token %}
+                        <input type="submit" name="eliminar-miembro" value="Eliminar miembro" />
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+
+    </table>
+
+</div>
+
+
+<div class="contenido text-center">
+    <h1 style='text-align:center; vertical-align:middle'>Usuarios que puedes agregar al equipo</h1>
+    <hr>
+    <table class="table table-hover">
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Rol</th>
+            <th>Agregar</th>
+        </tr>
+        {% for candidato in candidatos %}
+            <tr>
+                <td>{{candidato.first_name}}</td>
+                <td>{{candidato.last_name}}</td>
+                <td>{{candidato.rol}}</td>
+                <td>
+                    <form method="POST" action="/agregarMiembro/{{id_p}}/{{ candidato.id }}/">
+                        {% csrf_token %}
+                        <input type="submit" name="agregar-miembro" value="Agregar miembro" />
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+
+    </table>
+
+</div>
+
+{% endblock %}

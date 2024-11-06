@@ -1,5 +1,5 @@
 {% load static %}
-{% load i18n %}
+
 
 <!DOCTYPE html>
 <html>
@@ -9,9 +9,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-    <link type='text/css' rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% comment %} <link rel="stylesheet" href="/static/CSS/base.css"> {% endcomment %}
+    <link rel="stylesheet" href="/static/CSS/home.css">
+    {% comment %} <link rel="stylesheet" href="/static/CSS/historias.css"> {% endcomment %}
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 
     {% if title %}
@@ -26,7 +26,7 @@
     <div class="navbar" bg-color="black">
         {% if user.is_authenticated %}
             <a class="nav-item nav-link" href="{% url 'mP-home' %}">Inicio</a>
-             <a class="nav-item nav-link" href="{% url 'profile' %}">Perfil</a>
+            <a class="nav-item nav-link" href="{% url 'profile' %}">Perfil</a>
             <div class="dropdown">
                 <button class="dropbtn">Desplegar
                     <i class="fa fa-caret-down"></i>
@@ -45,21 +45,16 @@
             <a class="nav-item nav-link" href="{% url 'outside' %}"> Inicio</a>
         {% endif %}
     </div>
-
-    <main role="main" class="container">
-      <div class="row">
-        <div class="col-md-8">
+    <div>
         {% if messages %}
             {% for message in  messages %}
-            <div class="alert alert-{{message.tags}}">
-            {{ message }}
-            </div>
+                <div class="alert alert-{{message.tags}}">
+                    {{ message }}
+                </div>
             {% endfor %}
         {% endif %}
-          {% block content %}{% endblock %}
-        </div>
-      </div>
-    </main>
+    </div>
+        
 
 <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -67,12 +62,10 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
-<!-- Optional theme -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 </body>
+
+{% block content %}{% endblock %}
 <html>

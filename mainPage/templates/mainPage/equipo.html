@@ -2,9 +2,60 @@
 
 {% block content %}
 {% load static %}
-<link type='text/css' rel="stylesheet" href="{% static 'css/main.css' %}">
-<h1>{{equipoo}}
-{% if soyGP %}
+<!-- <link type='text/css' rel="stylesheet" href="{% static 'css/main.css' %}"> -->
+
+
+{% if hayEquipos %}
+    <div class="contenido-tabla">
+        <table class="table table-hover">
+            <tr>
+                <th>Nombre del equipo</th>
+                <th></th>
+            </tr>
+            <tr>
+                <td style='text-align:center; vertical-align:middle'>{{equipo.nombre}}</td>
+            </tr>
+            {% for miembro in equipo.miembros.all %}
+            <tr>
+                <td>miembro{{ forloop.counter }}</td>
+                <td>{{miembro.usuario.username}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <footer>
+            <nav class="nav-opciones-equipo">
+                <a class="btn" href="/agregarMiembro/{{ equipo.proyecto.id }}">Agregar miembro</a>
+                <a class="btn" href="/eliminarMiembro/">Eliminar miembro</a>
+                <a class="btn" href="/asignarRoles/">Asignar roles</a>
+            </nav>
+        </footer>
+    </div>
+
+{% else %}
+    <div class="container text-center">
+        <h1>Proyectos disponibles:</h1>
+        <table class="table table-hover">
+            <tr>
+                <th>Nombre del proyecto</th>
+                <th>Inicio</th>
+                <th>Termina</th>
+            </tr>
+            {% for proyecto in proyectos %}
+                <tr>
+                    <td>
+                        <form method="post" action="/equipo/">
+                            {% csrf_token %}
+                            <input type="submit" name="{{proyecto.nombre}}" value="{{proyecto.nombre}}">
+                        </form>
+                    </td>
+                    <td>{{proyecto.fechaInicio}}</td>
+                    <td>{{proyecto.fechaFin}}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endif %}
+{% comment %} {% if pro %}
     <div class="container text-center">
         <h1>Miembros del equipo</h1>
         <table class="table table-hover">
@@ -35,7 +86,7 @@
     </div>
 {% else %}
     <div>
-        <h1>Solo los gestores de proyecto pueden acceder</h1>
+        <h1>Solo los gestores de proyecto pueden editar</h1>
         <h2>Identificate como uno:</h2> 
         <form action="{% url 'equipo' %}" method="POST">
             {% csrf_token %}
@@ -46,6 +97,6 @@
         </form>
     </div>
     
-{% endif %}
+{% endif %} {% endcomment %}
 
 {% endblock %}
