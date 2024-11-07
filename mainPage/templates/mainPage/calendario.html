@@ -1,8 +1,9 @@
 {% extends "mainPage/base.html" %}
+{% load static %}
 
 {% block content %}
-<p>Hola, la fecha es {{fi}}</p>
-<p>Hola, la fecha final es {{ff}}</p>
+
+<h3>{{eventos.0.proyecto.nombre}}</h3>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -15,49 +16,94 @@
                 end: 'today prev,next'
             },
             events: [
-                {
-                    title: 'Clase ing de software',
-                    start: '{{ fi|safe }}',
-                    end: '{{ ff|safe }}',
-                    color: 'red',
-                    borderColor: 'black',
-                },
-                {
-                    title: 'Clase de programación',
-                    start: '2024-08-30',
-                    end: '2024-12-15'
-                },
-                {
-                    title: 'Clase de programación1',
-                    start: '2024-08-30',
-                    end: '2024-12-15'
-                },
-                {
-                    title: 'Clase de programación2',
-                    start: '2024-08-30',
-                    end: '2024-12-15'
-                },
-                {
-                    title: 'Clase de programación3',
-                    start: '2024-08-30',
-                    end: '2024-12-15'
-                },
-                {
-                    title: 'Clase de programación4',
-                    start: '2024-08-30',
-                    end: '2024-12-15'
-                },
-                {
-                    title: 'Clase de programación5',
-                    start: '2024-08-30',
-                    end: '2024-12-15'
-                }
+                {% for evento in eventos %}
+                    {
+                        title: '{{ evento.nombre|safe }}',
+                        start: '{{ evento.fechaInicio | date:"Y-m-d" }}',
+                        end: '{{ evento.fechaFin | date:"Y-m-d" }}',
+                        color: '{{ evento.ObtenerColor|safe }}',
+                        borderColor: 'black',
+                        extendedProps: {
+                            numMiembros: '{{ evento.miembroAsignado.all.count }}',
+                            numCriterios: '{{ evento.criterios.all.count }}',
+                            proyecto: '{{ evento.proyecto.nombre|safe }}',
+                            descripcion: '{{ evento.descripcion|safe }}',
+                            {% for criterio in evento.criterios.all %}
+                                criterio{{ forloop.counter }}: '{{ criterio.descripcion|safe }}',
+                            {% endfor %}
+                            {% for miembro in evento.miembroAsignado.all %}
+                                miembro{{ forloop.counter }}: '{{ miembro.username|safe }}',
+                            {% endfor %}
+                          },
+                    },
+                {% endfor %}
             ],
-            dayMaxEvents: true
+            eventClick: function(info) {
+                var m1 = info.event.extendedProps.miembro1
+                var m2 = info.event.extendedProps.miembro2
+                var m3 = info.event.extendedProps.miembro3
+                var m4 = info.event.extendedProps.miembro4
+                var m5 = info.event.extendedProps.miembro5
+                var c1 = info.event.extendedProps.criterio1
+                var c2 = info.event.extendedProps.criterio2
+                var c3 = info.event.extendedProps.criterio3
+                var c4 = info.event.extendedProps.criterio4
+                var c5 = info.event.extendedProps.criterio5
+                
+                
+                var infoHU = 'HU: ' + info.event.title + '\nProyecto perteneciente: ' 
+                + info.event.extendedProps.proyecto + '\nDescripción: ' 
+                + info.event.extendedProps.descripcion
+
+                switch (info.event.extendedProps.numMiembros) {
+                    case '1':
+                        infoHU =infoHU + '\nUsuarios responsanbles:\n- ' + m1;
+                        break;
+                    case '2':
+                        infoHU = infoHU + '\nUsuarios responsanbles:\n-' + m1 + '\n-' + m2;
+                        break;
+                    case '3':
+                        infoHU = infoHU + '\nUsuarios responsanbles:\n-' + m1 + '\n-' + m2 + '\n-' + m3;
+                        break;
+                    case '4':
+                        infoHU = infoHU + '\nUsuarios responsanbles:\n-' + m1 + '\n-' + m2 + '\n-' + m3 
+                        +'\n-' + m4;
+                        break;
+                    default:
+                        infoHU = infoHU + '\nUsuarios responsanbles:\n-' + m1 + '\n-' + m2 + '\n-' + m3 
+                        + '\n-' + m4 + '\n-' + m5;
+                  }
+
+                  infoHU = infoHU + '\nCriterios de Aceptacion:'
+
+                  switch (info.event.extendedProps.numCriterios) {
+                    case '1':
+                        infoHU = infoHU + '\nCriterio 1: ' + c1; 
+                        break;
+                    case '2':
+                        infoHU = infoHU + '\nCriterio 1: ' + c1 + '\nCriterio 2: ' + c2;
+                        break;
+                    case '3':
+                        infoHU = infoHU + '\nCriterio 1: ' + c1 + '\nCriterio 2: ' + c2 + '\nCriterio 3: ' + c3; 
+                        break;
+                    case '4':
+                        infoHU = infoHU + '\nCriterio 1: ' + c1 + '\nCriterio 2: ' + c2 + '\nCriterio 3: ' + c3
+                        + '\nCriterio 4: ' + c4; 
+                        break;
+                    default:
+                        infoHU = infoHU + '\nCriterio 1: ' + c1 + '\nCriterio 2: ' + c2 + '\nCriterio 3: ' + c3
+                    + '\nCriterio 4: ' + c4; 
+                  }
+                  alert(infoHU);
+            
+                // borde de color
+                info.el.style.borderColor = 'red';
+              },
+            dayMaxEvents: true //permite  agregar lista cuando hay muchos eventos
         });
         calendar.render();
         calendar.setOption('locale','es');
-    });
+    });   
 </script>
 
 

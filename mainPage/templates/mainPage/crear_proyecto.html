@@ -1,0 +1,37 @@
+{% extends "mainPage/base.html" %}
+
+
+
+{% block content%}
+
+
+<div class="contenido">
+    <form action="/crearProyecto/" method="POST">
+        {% csrf_token %}
+        <header>
+            <h2> Crear proyecto</h2>
+        </header>
+        <section>
+            <label class="requerido">Nombre del proyecto:</label>
+            <input type="text" name="nombre-proyecto" required>
+
+            <hr/>
+            <label class="requerido">Fecha de inicio:</label>
+            <input type="date" name="fecha-inicio" required>
+
+            <hr/>
+            <label class="requerido">Fecha de fin:</label>
+            <input type="date" name="fecha-fin" required>
+            <hr>
+        </section>
+
+        <footer>
+            <nav class="nav-opciones-proyecto">
+                <input type="submit" class="btn" value="Guardar proyecto"/>
+                <a class="btn" href="/">Cancelar</a>
+            </nav>
+        </footer>
+    </form>
+</div>  <!-- Se termina el div contenido -->
+
+{% endblock %}

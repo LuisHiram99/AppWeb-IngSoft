@@ -1,0 +1,9 @@
+/* 
+nav.navbar div.collapse ul.navbar-nav li.nav-item{
+    list-style: none;
+    background-color: #019;
+}*/
+
+nav.navbar li{
+    list-style: none;
+} 
