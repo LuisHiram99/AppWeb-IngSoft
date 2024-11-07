@@ -2,8 +2,9 @@ from django.shortcuts import render,redirect
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 User = get_user_model()
-from django.shortcuts import render,redirect
+from django.contrib.auth import login,logout,authenticate
 from .models import Reportes,HistoriaUsuario,Proyecto,Equipo,Miembro
+
 
 def equipo(request):
     if request.user.is_authenticated:
@@ -99,7 +100,6 @@ def asignarRoles(request):
     else:
         redirect('login')
 
-
 def Report(request):
     if request.method == 'POST':
         title = request.POST.get('title')
@@ -107,15 +107,31 @@ def Report(request):
         category = request.POST.get('category')
         content = request.POST.get('content')
         image = request.FILES.get('image')
+        doc = request.FILES.get('doc')
 
-        #crear un nuevo reporte
-        nuevo_reporte = Reportes(title=title, area=area, category=category, content=content, image=image)
-        nuevo_reporte.save()
+        if request.user.is_authenticated:
+            Reportes.objects.create(
+                user=request.user,
+                title=title,
+                area=area,
+                category=category,
+                content=content,
+                image=image,
+                doc=doc
+            )
+            return redirect('reportes')
 
-        return redirect("reportes")
+        filter_category = request.GET.get('filter_category')
 
-    todos_reportes = Reportes.objects.all()
-    return render(request, "mainPage/reportes.html", {'reportes': todos_reportes})
+        if filter_category:
+            reportes_list = Reportes.objects.filter(category=filter_category, user=request.user)
+        else:
+            reportes_list = Reportes.objects.filter(user=request.user)
+
+        return render(request, "mainPage/reportes.html", {
+            'reportes': reportes_list,
+            'usuario_actual': request.user
+        })
 
 def historias(request):
     return render(request,'mainPage/historias.html')
