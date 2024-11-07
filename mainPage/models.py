@@ -44,11 +44,13 @@ class Reportes(models.Model):
         ('Bajo', 'Bajo'),
     ]
 
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, default=1)
     title = models.CharField(max_length=200)
     area = models.CharField(max_length=200)
     category = models.CharField(max_length=20, choices=CATEGORIAS)
     content = models.TextField()
     image = models.ImageField(upload_to='images/', blank=True, null=True)
+    doc = models.FileField(upload_to='doc/', blank=True, null=True)
 
     def __str__(self):
         return self.title

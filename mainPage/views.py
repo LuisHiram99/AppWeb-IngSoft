@@ -20,9 +20,6 @@ def equipo(request):
     else:
         redirect('login')
 
-
-
-
 def Report(request):
     if request.method == 'POST':
         title = request.POST['title']
@@ -30,20 +27,31 @@ def Report(request):
         category = request.POST['category']
         content = request.POST['content']
         image = request.FILES.get('image')
+        doc = request.FILES.get('doc')
 
-        nuevo_reporte = Reportes.objects.create(
-            title=title,
-            area=area,
-            category=category,
-            content=content,
-            image=image
-        )
+        if request.user.is_authenticated:
+            Reportes.objects.create(
+                user=request.user,
+                title=title,
+                area=area,
+                category=category,
+                content=content,
+                image=image,
+                doc=doc
+            )
+            return redirect('reportes')
 
-        reportes_list = Reportes.objects.all()
-        return render(request, 'reportes.html', {'reportes': reportes_list})
+    filter_category = request.GET.get('filter_category')
 
-    reportes_list = Reportes.objects.all()
-    return render(request, 'reportes.html', {'reportes': reportes_list})
+    if filter_category:
+        reportes_list = Reportes.objects.filter(category=filter_category, user=request.user)
+    else:
+        reportes_list = Reportes.objects.filter(user=request.user)
+
+    return render(request, 'reportes.html', {
+        'reportes': reportes_list,
+        'usuario_actual': request.user
+    })
 
 
 def historias(request):
