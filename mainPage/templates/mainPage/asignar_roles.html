@@ -1,8 +1,34 @@
 {% extends "mainPage/base.html" %}
-
-
 {% block content %}
-
-<h1>Aquí asignaré un rol a un miembro</h1>
-
-{% endblock %}
+    <h1>Asignar Roles para el Proyecto: {{ proyecto.nombre }}</h1>
+    
+    {% if request.user == proyecto.gestorProyecto %}
+        <div class="content-section">
+            {% for miembro in miembros %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <p><strong>Miembro:</strong> {{ miembro.usuario.username }}</p>
+                    <p><strong>Rol actual:</strong> 
+                        {% if miembro.rol == 1 %}
+                            Administrador
+                        {% elif miembro.rol == 2 %}
+                            Gestor
+                        {% elif miembro.rol == 3 %}
+                            Programador
+                        {% else %}
+                            Sin rol asignado
+                        {% endif %}
+                    </p>
+                    
+                    <!-- Selector para cambiar el rol -->
+                    <input type="hidden" name="miembro_id" value="{{ miembro.id }}">
+                    {{ form.as_p }}
+                    <button class="btn btn-primary" type="submit">Asignar rol</button>
+                </form>
+                <hr>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No tienes permisos para asignar roles en este proyecto.</p>
+    {% endif %}
+{% endblock content %}
