@@ -14,18 +14,32 @@
                 <div class="media-body">
                     <h2 class="account-heading">{{ user.username }}</h2>
                     <p class="text-secondary">{{ user.email }}</p>
+
+                    <!-- Mostrar el rol del usuario actualizando en tiempo real -->
+                    <p><strong>Rol:</strong>
+                        {% if user.miembros.first.rol == 1 %}
+                            Administrador
+                        {% elif user.miembros.first.rol == 2 %}
+                            Gestor
+                        {% elif user.miembros.first.rol == 3 %}
+                            Programador
+                        {% else %}
+                            Sin rol asignado
+                        {% endif %}
+                    </p>
                 </div>
             </div>
         </div>
+
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <fieldset class="form-group">
-                <legend class="border-bottom mb-4"> Información de Perfil </legend>
+                <legend class="border-bottom mb-4">Información de Perfil</legend>
                 {{ u_form | crispy }}
                 {{ p_form | crispy }}
             </fieldset>
             <div class="form-group">
-                <button class="btn btn-outline-info" type="submit"> Actualizar</button>
+                <button class="btn btn-outline-info" type="submit">Actualizar</button>
             </div>
         </form>
     </div>
