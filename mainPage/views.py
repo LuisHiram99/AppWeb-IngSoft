@@ -124,17 +124,17 @@ def Report(request):
             )
             return redirect('reportes')
 
-        filter_category = request.GET.get('filter_category')
+    filter_category = request.GET.get('filter_category')
 
-        if filter_category:
-            reportes_list = Reportes.objects.filter(category=filter_category, user=request.user)
-        else:
-            reportes_list = Reportes.objects.filter(user=request.user)
+    if filter_category:
+        reportes_list = Reportes.objects.filter(category=filter_category, user=request.user)
+    else:
+        reportes_list = Reportes.objects.filter(user=request.user)
 
-        return render(request, "mainPage/reportes.html", {
-            'reportes': reportes_list,
-            'usuario_actual': request.user
-        })
+    return render(request, "mainPage/reportes.html", {
+        'reportes': reportes_list,
+        'usuario_actual': request.user
+    })
 
 def historias(request):
     return render(request,'mainPage/historias.html')
