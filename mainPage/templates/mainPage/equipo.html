@@ -27,7 +27,7 @@
             <nav class="nav-opciones-equipo">
                 <a class="btn" href="/agregarMiembro/{{ equipo.proyecto.id }}">Agregar miembro</a>
                 <a class="btn" href="/eliminarMiembro/">Eliminar miembro</a>
-                <a class="btn" href="/asignarRoles/">Asignar roles</a>
+                <a class="btn" href="{% url 'asignarRoles' id_proyecto=equipo.proyecto.id %}">Asignar roles</a>
             </nav>
         </footer>
     </div>
