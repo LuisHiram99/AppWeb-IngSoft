@@ -24,18 +24,22 @@ def register(request):
 @login_required
 def profile(request):
     if request.method == 'POST':
-        u_form=UserUpdateForm(request.POST,instance=request.user)
-        p_form=ProfileUpdateForm(request.POST,
-                                 request.FILES,
-                                 instance=request.user.perfil)
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.perfil)
         if u_form.is_valid() and p_form.is_valid():
             u_form.save()
             p_form.save()
-            messages.success(request, f'Tu cuenta sido actualizada correctamente!')
+            messages.success(request, 'Tu cuenta ha sido actualizada correctamente!')
             return redirect('profile')
     else:
         u_form = UserUpdateForm(instance=request.user)
         p_form = ProfileUpdateForm(instance=request.user.perfil)
-    context={'u_form':u_form,'p_form':p_form}
+
+    # Rol del usuario 
+    context = {
+        'u_form': u_form,
+        'p_form': p_form,
+        'rol_usuario': request.user.rol,  # Obtiene el rol del usuario
+    }
     return render(request, 'users/profile.html', context)
 
