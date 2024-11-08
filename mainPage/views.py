@@ -1,9 +1,12 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 User = get_user_model()
 from django.contrib.auth import login,logout,authenticate
 from .models import Reportes,HistoriaUsuario,Proyecto,Equipo,Miembro
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .forms import AsignarRolForm 
 
 
 def equipo(request):
@@ -182,6 +185,39 @@ def calendario(request):
     else:
         return redirect('login')
 
+@login_required
+def asignar_roles(request, id_proyecto):
+    proyecto = get_object_or_404(Proyecto, id=id_proyecto)
 
+    # Verificar si el usuario es el gestor del proyecto
+    if request.user != proyecto.gestorProyecto:
+        messages.warning(request, "No tienes permisos para asignar roles en este proyecto.")
+        return redirect('mP-home')  # Redirigir a la página de inicio si no es el gestor
 
+    equipo = proyecto.equipo
+    miembros = equipo.miembros.all()  # Lista de miembros del equipo
+
+    if request.method == 'POST':
+        form = AsignarRolForm(request.POST)
+
+        # Verificar si el formulario es válido y que el usuario siga siendo el gestor
+        if form.is_valid() and request.user == proyecto.gestorProyecto:
+            miembro_id = request.POST.get("miembro_id")
+            miembro = Miembro.objects.get(id=miembro_id)
+            miembro.rol = form.cleaned_data['rol']
+            miembro.save()
+            miembro.usuario.rol = miembro.rol
+            miembro.usuario.save()
+
+            messages.success(request, f"Rol de {miembro.usuario.username} actualizado correctamente.")
+            return redirect('asignarRoles', id_proyecto=id_proyecto)
+    else:
+        form = AsignarRolForm()
+
+    context = {
+        'form': form,
+        'miembros': miembros,
+        'proyecto': proyecto,
+    }
+    return render(request, 'mainPage/asignar_roles.html', context)
 
