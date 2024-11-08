@@ -173,10 +173,14 @@ def outside (request):
 
 def calendario(request):
     if request.user.is_authenticated:
-        usuario = User.objects.get(username=request.user.username)
-        eventos = HistoriaUsuario.objects.filter(miembroAsignado=usuario)
+        if request.user.SoyGestor():
+            eventos = HistoriaUsuario.objects.all()
+        else:
+            usuario = User.objects.get(username=request.user.username)
+            eventos = HistoriaUsuario.objects.filter(miembroAsignado=usuario)
         context = {
-        "eventos": eventos
+        "eventos": eventos,
+        "soyGestor": request.user.SoyGestor()
         }
         return render(request,'mainPage/calendario.html',context)
     else:
