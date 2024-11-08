@@ -1,22 +1,70 @@
 {% extends "mainPage/base.html" %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
 {% load static %}
 
+{% block content %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Aplicación de Gestión de Proyectos</title>
+    <style>
+        .section {
+            display: flex; 
+            align-items: center; 
+        }
+        .section img {
+            width: 150px; 
+            height: 150px;
+            margin-right: 20px; 
+        }
+    </style>
+</head>
+<body>
 
-{% block content%}
+<h1>Aplicación de Gestión de Proyectos</h1>
+<p>Herramientas para la gestión eficiente de proyectos</p>
 
-<!-- <link type='text/css' rel="stylesheet" href="{% static 'css/main.css' %}"> -->
+<section class="section">
+    <a href="{% url 'historias' %}">
+        <img src="../../../media/home/hu.jpg" alt="Categorización de Historias de Usuario">
+    </a>
+    <div>
+        <h2>Categorización de Historias de Usuario</h2>
+        <p>Permite clasificar y organizar las historias de usuario, facilitando la priorización de tareas. Los usuarios pueden asignar etiquetas y categorías para una mejor organización.</p>
+    </div>
+</section>
 
-<div class="contenido">
-        <section>
-            <h2>Crea tu proyecto!!</h2>
-        </section>
+<section class="section">
+    <a href="{% url 'equipo' %}">
+        <img src="../../../media/home/equipo.jpg" alt="Organización del Equipo">
+    </a>
+    <div>
+        <h2>Organización del Equipo</h2>
+        <p>Permite asignar roles y responsabilidades a cada miembro del grupo. Esto ayuda a la organización de los miembros del equipo.</p>
+    </div>
+</section>
 
-        <footer>
-            <nav class="nav-opciones-proyecto">
-                <a class="btn" href="/crearProyecto">Crear proyecto</a>
-            </nav>
-        </footer>
-    </form>
-</div>  <!-- Se termina el div contenido -->
+<section class="section">
+    <a href="{% url 'reportes' %}">
+        <img src="../../../media/home/reporte.jpg" alt="Observaciones y Reportes">
+    </a>
+    <div>
+        <h2>Observaciones y Reportes</h2>
+        <p>Los usuarios pueden agregar observaciones y generar reportes sobre el progreso del proyecto. Permite documentar y facilitar la comunicación entre los miembros del equipo.</p>
+    </div>
+</section>
 
+<section class="section">
+    <a href="{% url 'calendario' %}">
+        <img src="../../../media/home/calendario.jpg" alt="Visualización de Fechas de Entrega">
+    </a>
+    <div>
+        <h2>Visualización de Fechas de Entrega</h2>
+        <p>Los usuarios pueden observar las fechas límite de las tareas asignadas. La visualización de plazos ayuda a mantener la organización de las tareas esperadas.</p>
+    </div>
+</section>
+</body>
+</html>
 {% endblock %}
