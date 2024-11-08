@@ -1,6 +1,6 @@
 
 from django import forms
-from .models import Reportes,Proyecto
+from .models import Reportes,Proyecto, Miembro
 
 class ProyectForm(forms.ModelForm):
     class Meta:
