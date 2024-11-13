@@ -69,9 +69,6 @@ class Proyecto(models.Model):
 
 class User(AbstractUser):
     proyectos = models.ManyToManyField(Proyecto,related_name="usuarios", blank=True)
-    estado = models.BooleanField(default=True, blank=True, null=False)
-    rol = models.SmallIntegerField(default=0, blank=True, null=False)
-    gestor_proyecto = models.BooleanField(default=False, blank=True, null=False)
 
     # agregue el perfil, permite nombre first name, etc
     perfil = models.OneToOneField(Profile, on_delete=models.CASCADE, blank=True, null=True)
@@ -84,13 +81,6 @@ class User(AbstractUser):
 
     def ObtenerNombre(self):
         return str(self.first_name + self.last_name);
-
-    def SoyGestor(self):
-        return self.gestor_proyecto
-
-    def HacerGestor(self):
-        self.gestor_proyecto = True
-        return
 
 
 class Reportes(models.Model):

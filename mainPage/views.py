@@ -142,7 +142,7 @@ def crearProyecto(request):
             nombre = request.POST.get("nombre-proyecto")
             fi = request.POST.get("fecha-inicio")
             ff = request.POST.get("fecha-fin")
-            equipo =  Equipo(nombre="placeholder")
+            equipo =  Equipo(nombre=nombre)
             equipo.save()
             miembro = Miembro(usuario=request.user,rol=2,equipo=equipo)
             miembro.save()
