@@ -19,6 +19,7 @@ class AsignarRolForm(forms.ModelForm):
         labels = {'rol': 'Rol del miembro'}
         widgets = {
             'rol': forms.Select(choices=[
+                (0, 'Sin asignar'),
                 (1, 'Administrador'),
                 (2, 'Gestor'),
                 (3, 'Programador'),

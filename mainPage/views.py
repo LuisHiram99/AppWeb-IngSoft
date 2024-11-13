@@ -2,7 +2,6 @@ from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 User = get_user_model()
-from django.contrib.auth import login,logout,authenticate
 from .models import Reportes,HistoriaUsuario,Proyecto,Equipo,Miembro
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -55,7 +54,7 @@ def agregarMiembro(request,id_proyecto,id_miembro):
                 equipo = equipo
             )
             nuevo_miembro.save()
-            new_url = reverse('agregarMiembroGET',args=[id_proyecto])
+            new_url = reverse('editarEquipo',args=[id_proyecto])
             return redirect(new_url)
         miembros = equipo.miembros
         candidatos = User.objects.exclude(proyecto=id_proyecto)
@@ -65,12 +64,11 @@ def agregarMiembro(request,id_proyecto,id_miembro):
             'id_p': id_proyecto,
             'candidatos': candidatos
         }
-
-        return render(request,'mainPage/agregar_miembro.html',context)
+        return render(request,'mainPage/editar_equipo.html',context)
     else:
         redirect('login')
 
-def agregarMiembroGET(request,id_proyecto):
+def editarEquipo(request,id_proyecto):
     if request.user.is_authenticated:
         equipo = Proyecto.objects.get(id=id_proyecto).equipo
         miembros = equipo.miembros
@@ -81,7 +79,7 @@ def agregarMiembroGET(request,id_proyecto):
             'candidatos': candidatos,
         }
 
-        return render(request,'mainPage/agregar_miembro.html',context)
+        return render(request,'mainPage/editar_equipo.html',context)
     else:
         redirect('login')
 
@@ -92,14 +90,8 @@ def eliminarMiembro(request,id_proyecto,id_miembro):
             usuario = miembro.usuario
             usuario.proyectos.remove(id_proyecto)
             miembro.delete()
-        new_url = reverse('agregarMiembroGET',args=[id_proyecto])
+        new_url = reverse('editarEquipo',args=[id_proyecto])
         return redirect(new_url)
-    else:
-        redirect('login')
-
-def asignarRoles(request):
-    if request.user.is_authenticated:
-        return render(request,'mainPage/asignar_roles.html')
     else:
         redirect('login')
 
@@ -152,7 +144,7 @@ def crearProyecto(request):
             ff = request.POST.get("fecha-fin")
             equipo =  Equipo(nombre="placeholder")
             equipo.save()
-            miembro = Miembro(usuario=request.user,rol=0,equipo=equipo)
+            miembro = Miembro(usuario=request.user,rol=2,equipo=equipo)
             miembro.save()
 
             nuevo_proyecto = Proyecto(
@@ -176,14 +168,28 @@ def outside (request):
 
 def calendario(request):
     if request.user.is_authenticated:
-        if request.user.SoyGestor():
-            eventos = HistoriaUsuario.objects.all()
+        if request.method == "POST":
+            id_proyecto = request.POST.get("filtro-proyecto")
+            num_rol = request.POST.get("filtro-rol","-1")
+            proyecto_filtro = Proyecto.objects.get(id=id_proyecto)
+
+            if proyecto_filtro.gestorProyecto == request.user:
+                if num_rol != "-1" or None:
+                    eventos = HistoriaUsuario.objects.filter(proyecto=proyecto_filtro).filter(miembroAsignado__rol=str(num_rol))  
+                else: 
+                    eventos = HistoriaUsuario.objects.filter(proyecto=proyecto_filtro)
+            else:
+                eventos = HistoriaUsuario.objects.filter(proyecto=proyecto_filtro).filter(miembroAsignado__usuario=request.user)
+
+            proyFiltro = proyecto_filtro
         else:
-            usuario = User.objects.get(username=request.user.username)
-            eventos = HistoriaUsuario.objects.filter(miembroAsignado=usuario)
+            eventos = HistoriaUsuario.objects.filter(miembroAsignado__usuario=request.user)
+            proyFiltro = None
+        proyectos = Proyecto.objects.filter(usuarios=request.user.id)
         context = {
-        "eventos": eventos,
-        "soyGestor": request.user.SoyGestor()
+            "eventos": eventos,
+            "proyectos": proyectos,
+            "proyFiltro": proyFiltro
         }
         return render(request,'mainPage/calendario.html',context)
     else:
@@ -206,12 +212,20 @@ def asignar_roles(request, id_proyecto):
 
         # Verificar si el formulario es válido y que el usuario siga siendo el gestor
         if form.is_valid() and request.user == proyecto.gestorProyecto:
+            #El equipo no puede quedarse sin gestor,, agregar pruebas sobre esto
             miembro_id = request.POST.get("miembro_id")
             miembro = Miembro.objects.get(id=miembro_id)
             miembro.rol = form.cleaned_data['rol']
             miembro.save()
-            miembro.usuario.rol = miembro.rol
-            miembro.usuario.save()
+            #Si se creo un nuevo gestor entonces y este es distinto al usuario original:
+            if miembro.rol == 2 and proyecto.gestorProyecto != miembro.usuario: 
+                ex_gestor = Miembro.objects.filter(equipo__proyecto=id_proyecto).get(usuario=proyecto.gestorProyecto)
+                ex_gestor.rol = 0
+                ex_gestor.save() 
+                proyecto.gestorProyecto = miembro.usuario 
+                proyecto.save()
+                
+
 
             messages.success(request, f"Rol de {miembro.usuario.username} actualizado correctamente.")
             return redirect('asignarRoles', id_proyecto=id_proyecto)

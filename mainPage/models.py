@@ -13,7 +13,8 @@ class Miembro(models.Model):
     equipo = models.ForeignKey('Equipo',on_delete=models.CASCADE,
                                  related_name="miembros", blank=True)
     def __str__(self):
-        datosFila = "Nombre miembro: " + self.usuario.username
+        datosFila = "Nombre miembro: " + self.usuario.username + " - Nombre proyecto: "
+        datosFila += self.equipo.proyecto.nombre
         return datosFila
 
 class Equipo(models.Model):
@@ -24,16 +25,6 @@ class Equipo(models.Model):
         datosFila = "Nombre equipo: " + self.nombre 
         return datosFila
 
-
-class CriterioAceptacion(models.Model):
-    id = models.AutoField(primary_key=True)
-    descripcion = models.TextField('Descripción de la HU',blank=True,null=True)
-    historia = models.ForeignKey('HistoriaUsuario',on_delete=models.CASCADE,
-                                 related_name="criterios", blank=True)
-    
-    def __str__(self):
-        return self.descripcion
-
 class HistoriaUsuario(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField('Nombre de la hu', max_length=70,blank=False,null=False)
@@ -43,7 +34,7 @@ class HistoriaUsuario(models.Model):
     descripcion = models.TextField('Descripción de la HU',blank=True,null=True)
     #criterio_aceptacion = las HU tienen una relación OneToMany con Historias de usuario, 
     #ver la def de la clase ↑
-    miembroAsignado = models.ManyToManyField('User',related_name="historias",blank=False)
+    miembroAsignado = models.ManyToManyField(Miembro,related_name="historias",blank=False)
 
     proyecto = models.ForeignKey('Proyecto',on_delete=models.CASCADE,related_name="historias", blank=True)
     #consulta para accedar a las historias pertenecientes a cierto proyecto: 
