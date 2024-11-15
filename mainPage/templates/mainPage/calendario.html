@@ -11,15 +11,20 @@
                 <h3>Filtros:</h3>
                 <section>
                     <select name="filtro-proyecto" required>
-                        <option value="">Sin seleccionar</option>
+                        <option value="-1">Mostrar todos los proyectos</option>
                         {% for proyecto in proyectos.all %}
                         <option value="{{proyecto.id}}">{{proyecto.nombre}}</option>
                         {% endfor %}
                     </select>
+                    <select name="filtro-estado" required>
+                        <option value="-1">Mostrar todas las historias</option>
+                        <option value="0">Historias sin completar</option>
+                        <option value="1">Historias completadas</option>
+                    </select>
                     {% if proyFiltro %}
                     {% if proyFiltro.gestorProyecto == user %}
                     <select name="filtro-rol" required>
-                        <option value="">Sin seleccionar</option>
+                        <option value="-1">Todos los roles</option>
                         <option value="1">Administrador</option>
                         <option value="2">Gestor</option>
                         <option value="3">Programador</option>

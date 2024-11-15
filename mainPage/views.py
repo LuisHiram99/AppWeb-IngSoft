@@ -130,6 +130,51 @@ def Report(request):
 
 def historias(request):
     return render(request,'mainPage/historias.html')
+    # if request.user.is_authenticated:
+    #     #Si recibí una petición post
+    #     if request.method == 'POST':
+    #         titulo = request.POST.get("titulo")
+    #         descripcion = request.POST.get("descripcion")
+    #         feIni = request.POST.get("feIni")
+    #         feFin = request.POST.get("feFin")
+    #         rol = request.POST.get("rol")
+    #         id_proyecto = request.POST.get("proyecto-id")
+
+    #         #Con el id del proyecto seleccionado en el forms, obtenemos el proyecto y los miembros en el
+    #         #que cumplen con el rol seleccionado
+    #         proyecto = Proyecto.objects.get(id=id_proyecto)
+    #         # el atributo de filter: equipo__proyecto es parecido a un puntero de c++:
+    #         # dame todos los miembros que tienen un proyecto igual a <objeto_proyecto>
+    #         miembros = Miembro.objects.filter(rol=rol).filter(equipo__proyecto=proyecto)
+            
+    #         #Creamos un objeto que guarde los datos recibidos por el forms
+    #         nueva_historia = HistoriaUsuario(
+    #             nombre = titulo,
+    #             fechaInicio = feIni,
+    #             fechaFin = feFin,
+    #             descripcion = descripcion,
+    #             proyecto = proyecto
+    #         )
+    #         #guardamos el objeto en la base de datos
+    #         nueva_historia.save()
+            
+    #         #agregamos los miembros a la base de datos uno por uno, ya que add no puede agregar un queryset
+    #         for miembro in miembros:
+    #             nueva_historia.miembroAsignado.add(miembro)
+    #         nueva_historia.save()
+
+
+    #         return redirect('historias')
+    #     else:
+    #         #Le mandamos solo los proyectos en los que el usuario actual es gestor de proyecto.
+    #         proyectos = Proyecto.objects.filter(gestorProyecto=request.user)
+    #         context = {
+    #             'proyectos': proyectos
+    #         }
+    #         return render(request,'mainPage/historias.html',context)
+    # else:
+    #     return redirect('login')
+    
 def home (request):
     if request.user.is_authenticated:
         return render(request, 'mainPage/home.html')
@@ -171,26 +216,48 @@ def calendario(request):
         if request.method == "POST":
             id_proyecto = request.POST.get("filtro-proyecto")
             num_rol = request.POST.get("filtro-rol","-1")
-            proyecto_filtro = Proyecto.objects.get(id=id_proyecto)
+            estado_filtro = request.POST.get("filtro-estado")
 
-            if proyecto_filtro.gestorProyecto == request.user:
+            if id_proyecto == "-1":
+                proyecto_filtro = None
+            else:
+                proyecto_filtro = Proyecto.objects.get(id=id_proyecto)
+
+            #si el proyecto no se filtro entonces:
+            if proyecto_filtro == None:
+                eventos = HistoriaUsuario.objects.filter(miembroAsignado__usuario=request.user)
+            #Si se filtro un proyecto y soy su gestor de proyecto entonces:
+            elif proyecto_filtro != None and proyecto_filtro.gestorProyecto == request.user:
+                #Si además agregué un filtro de rol entonces:
                 if num_rol != "-1" or None:
                     eventos = HistoriaUsuario.objects.filter(proyecto=proyecto_filtro).filter(miembroAsignado__rol=str(num_rol))  
                 else: 
                     eventos = HistoriaUsuario.objects.filter(proyecto=proyecto_filtro)
+            #Solo se muestran las historias del usuario que hizó la petición
             else:
                 eventos = HistoriaUsuario.objects.filter(proyecto=proyecto_filtro).filter(miembroAsignado__usuario=request.user)
 
-            proyFiltro = proyecto_filtro
+            #Si no se solicitaron todas las tareas, se filtra por estado completado o sin completar:
+            if estado_filtro != "-1":
+                eventos = eventos.filter(estado=estado_filtro)
+
+            print("filtro estado: " + estado_filtro)
+            proyectos = Proyecto.objects.filter(usuarios=request.user.id)
+            context = {
+                "eventos": eventos,
+                "proyectos": proyectos,
+                "proyFiltro": proyecto_filtro
+            }
+            redirect("calendario")
         else:
             eventos = HistoriaUsuario.objects.filter(miembroAsignado__usuario=request.user)
-            proyFiltro = None
-        proyectos = Proyecto.objects.filter(usuarios=request.user.id)
-        context = {
-            "eventos": eventos,
-            "proyectos": proyectos,
-            "proyFiltro": proyFiltro
-        }
+            proyecto_filtro = None
+            proyectos = Proyecto.objects.filter(usuarios=request.user.id)
+            context = {
+                "eventos": eventos,
+                "proyectos": proyectos,
+                "proyFiltro": proyecto_filtro
+            }
         return render(request,'mainPage/calendario.html',context)
     else:
         return redirect('login')
