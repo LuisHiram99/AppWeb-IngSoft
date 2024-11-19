@@ -37,14 +37,17 @@
         </div>
 
         <form method="GET" action="{% url 'reportes' %}">
-        <label for="filterCategory">Filtrar por categoría:</label>
-        <select id="filterCategory" name="filter_category" onchange="this.form.submit()">
-            <option value="">Todas</option>
-            <option value="Alto" {% if request.GET.filter_category == "Alto" %}selected{% endif %}>Alto</option>
-            <option value="Medio" {% if request.GET.filter_category == "Medio" %}selected{% endif %}>Medio</option>
-            <option value="Bajo" {% if request.GET.filter_category == "Bajo" %}selected{% endif %}>Bajo</option>
-        </select>
-    </form>
+            <input type="text" name="buscar" placeholder="Buscar palabra clave..." value="{{request.GET.buscar}}">
+            <button type="submit">Buscar</button> <br><br>
+
+            <label for="filterCategory">Filtrar por categoría:</label>
+            <select id="filterCategory" name="filter_category" onchange="this.form.submit()">
+                <option value="">Todas</option>
+                <option value="Alto" {% if request.GET.filter_category == "Alto" %}selected{% endif %}>Alto</option>
+                <option value="Medio" {% if request.GET.filter_category == "Medio" %}selected{% endif %}>Medio</option>
+                <option value="Bajo" {% if request.GET.filter_category == "Bajo" %}selected{% endif %}>Bajo</option>
+            </select>
+        </form>
 
         <div id="postList" class="post-list">
             {% for reporte in reportes %}
@@ -53,6 +56,9 @@
                     <p><strong>Área:</strong> {{ reporte.area }}</p>
                     <p><strong>Categoría:</strong> {{ reporte.category }}</p>
                     <p>{{ reporte.content }}</p>
+                    <a href="{% url 'gen_pdf' reporte.id %}">
+                        <button>Descargar PDF</button>
+                    </a>
                     {% if reporte.image %}
                         <img src="{{ reporte.image.url }}" alt="Post Image" />
                             <a href="{{ reporte.image.url }}" download="{{ reporte.image.name|slice:'7:' }}">
@@ -71,13 +77,6 @@
             {% endfor %}
         </div>
 
-        {% if messages %}
-            <ul>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
     </div>
 
     <script src="{% static 'scripts.js' %}"></script>

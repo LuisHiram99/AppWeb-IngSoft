@@ -18,6 +18,7 @@ urlpatterns = [
     path('register/', user_views.register, name='register'),
     path('profile/', user_views.profile, name='profile'),
     path('reportes/', views.Report, name='reportes'),
+    path('reporte/<int:reporte_id>/pdf/', views.gen_pdf, name='gen_pdf'),
     path('calendario/', views.calendario, name='calendario'),
     path('historias/',views.historias,name='historias'),
     path('outside/', views.outside, name='outside'),

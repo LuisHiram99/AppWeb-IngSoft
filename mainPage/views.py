@@ -1,9 +1,10 @@
-from django.shortcuts import render,redirect, get_object_or_404
+from django.shortcuts import render,redirect, get_object_or_404,HttpResponse
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 User = get_user_model()
+from reportlab.pdfgen import canvas
 from django.contrib.auth import login,logout,authenticate
-from .models import Reportes,HistoriaUsuario,Proyecto,Equipo,Miembro
+from .models import Reportes,HistoriaUsuario,Proyecto,Equipo,Miembro,Notif
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import AsignarRolForm 
@@ -103,7 +104,30 @@ def asignarRoles(request):
     else:
         redirect('login')
 
+def gen_pdf(request, reporte_id):
+    reporte = get_object_or_404(Reportes, id=reporte_id)
+
+    httpResponse= HttpResponse(content_type='application/pdf')
+    httpResponse['Content-Disposition'] = f'attachment; filename="reporte_{reporte.id}.pdf"'
+    pdf=canvas.Canvas(httpResponse)
+
+    pdf.setFont("Helvetica",13)
+    pdf.drawString(100,800, f"Título: {reporte.title}")
+    pdf.drawString(100,780, f"Área: {reporte.area}")
+    pdf.drawString(100,760, f"Categoría: {reporte.category}")
+    pdf.drawString(100,720, f"Contenido: {reporte.content}")
+
+    pdf.showPage()
+    pdf.save()
+    return httpResponse
+
+
+
+
+
 def Report(request):
+    notifications = Notif.objects.all().order_by('-time')
+
     if request.method == 'POST':
         title = request.POST.get('title')
         area = request.POST.get('area')
@@ -122,6 +146,12 @@ def Report(request):
                 image=image,
                 doc=doc
             )
+            mensaje = f"{request.user.username} agregó un nuevo reporte a la base de datos."
+            Notif.objects.create(
+                user=request.user,
+                msg=mensaje
+            )
+            messages.success(request, mensaje)
             return redirect('reportes')
 
     filter_category = request.GET.get('filter_category')
@@ -131,9 +161,14 @@ def Report(request):
     else:
         reportes_list = Reportes.objects.filter(user=request.user)
 
+    buscar_clave=request.GET.get('buscar')
+    if buscar_clave:
+        reportes_list = reportes_list.filter(title__icontains=buscar_clave)|reportes_list.filter(title__icontains=buscar_clave)
+
     return render(request, "mainPage/reportes.html", {
         'reportes': reportes_list,
-        'usuario_actual': request.user
+        'usuario_actual': request.user,
+        'notifications': notifications
     })
 
 def historias(request):
