@@ -1,0 +1,12 @@
+div.contenedor-calen {
+    width: 80%;
+    margin: 20px auto;
+    padding: 15px;
+    border: 1px solid #cccc;
+    box-shadow: 2px 2px 5px #999;
+    background-color: #fff;
+}
+
+div.contenedor-calen h3{
+    color: blue;
+}

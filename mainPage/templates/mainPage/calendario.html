@@ -3,7 +3,45 @@
 
 {% block content %}
 
-<h3>{{eventos.0.proyecto.nombre}}</h3>
+<div class="contenedor-calen">
+    <header>
+        <nav method>
+            <form action="/calendario/" method="POST">
+                {% csrf_token %}
+                <h3>Filtros:</h3>
+                <section>
+                    <select name="filtro-proyecto" required>
+                        <option value="-1">Mostrar todos los proyectos</option>
+                        {% for proyecto in proyectos.all %}
+                        <option value="{{proyecto.id}}">{{proyecto.nombre}}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="filtro-estado" required>
+                        <option value="-1">Mostrar todas las historias</option>
+                        <option value="0">Historias sin completar</option>
+                        <option value="1">Historias completadas</option>
+                    </select>
+                    {% if proyFiltro %}
+                    {% if proyFiltro.gestorProyecto == user %}
+                    <select name="filtro-rol" required>
+                        <option value="-1">Todos los roles</option>
+                        <option value="1">Administrador</option>
+                        <option value="2">Gestor</option>
+                        <option value="3">Programador</option>
+                    </select>
+                    {% endif %}
+                    {% endif %}
+                    <input type="submit" name="filtro" value="Filtrar">
+                </section>
+            </form>
+        </nav>
+    </header>
+    <main>
+        <div id='calendar'></div>
+    </main>
+</div>
+
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -25,14 +63,10 @@
                         borderColor: 'black',
                         extendedProps: {
                             numMiembros: '{{ evento.miembroAsignado.all.count }}',
-                            numCriterios: '{{ evento.criterios.all.count }}',
                             proyecto: '{{ evento.proyecto.nombre|safe }}',
                             descripcion: '{{ evento.descripcion|safe }}',
-                            {% for criterio in evento.criterios.all %}
-                                criterio{{ forloop.counter }}: '{{ criterio.descripcion|safe }}',
-                            {% endfor %}
                             {% for miembro in evento.miembroAsignado.all %}
-                                miembro{{ forloop.counter }}: '{{ miembro.username|safe }}',
+                                miembro{{ forloop.counter }}: '{{ miembro.usuario.username|safe }}',
                             {% endfor %}
                           },
                     },
@@ -44,11 +78,6 @@
                 var m3 = info.event.extendedProps.miembro3
                 var m4 = info.event.extendedProps.miembro4
                 var m5 = info.event.extendedProps.miembro5
-                var c1 = info.event.extendedProps.criterio1
-                var c2 = info.event.extendedProps.criterio2
-                var c3 = info.event.extendedProps.criterio3
-                var c4 = info.event.extendedProps.criterio4
-                var c5 = info.event.extendedProps.criterio5
                 
                 
                 var infoHU = 'HU: ' + info.event.title + '\nProyecto perteneciente: ' 
@@ -74,26 +103,6 @@
                         + '\n-' + m4 + '\n-' + m5;
                   }
 
-                  infoHU = infoHU + '\nCriterios de Aceptacion:'
-
-                  switch (info.event.extendedProps.numCriterios) {
-                    case '1':
-                        infoHU = infoHU + '\nCriterio 1: ' + c1; 
-                        break;
-                    case '2':
-                        infoHU = infoHU + '\nCriterio 1: ' + c1 + '\nCriterio 2: ' + c2;
-                        break;
-                    case '3':
-                        infoHU = infoHU + '\nCriterio 1: ' + c1 + '\nCriterio 2: ' + c2 + '\nCriterio 3: ' + c3; 
-                        break;
-                    case '4':
-                        infoHU = infoHU + '\nCriterio 1: ' + c1 + '\nCriterio 2: ' + c2 + '\nCriterio 3: ' + c3
-                        + '\nCriterio 4: ' + c4; 
-                        break;
-                    default:
-                        infoHU = infoHU + '\nCriterio 1: ' + c1 + '\nCriterio 2: ' + c2 + '\nCriterio 3: ' + c3
-                    + '\nCriterio 4: ' + c4; 
-                  }
                   alert(infoHU);
             
                 // borde de color
@@ -105,11 +114,6 @@
         calendar.setOption('locale','es');
     });   
 </script>
-
-
-<div id='calendar'></div>
-
-
 
 
 {% endblock %}

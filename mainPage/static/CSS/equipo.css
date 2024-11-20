@@ -1,0 +1,27 @@
+div.contenido-tabla {
+    width: 80%;
+    margin: 20px auto;
+    padding: 15px;
+    border: 1px solid #cccc;
+    box-shadow: 2px 2px 5px #999;
+    background-color: #fff;
+}
+
+div.contenido-tabla table.tabla th{
+    text-align: center;
+}
+
+
+div.contenido {
+    width: 80%;
+    margin: 20px auto;
+    padding: 15px;
+    border: 1px solid #cccc;
+    box-shadow: 2px 2px 5px #999;
+    background-color: #fff;
+}
+
+
+div.contenido table th{
+    text-align: center;
+}

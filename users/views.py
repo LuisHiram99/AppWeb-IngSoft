@@ -39,7 +39,7 @@ def profile(request):
     context = {
         'u_form': u_form,
         'p_form': p_form,
-        'rol_usuario': request.user.rol,  # Obtiene el rol del usuario
+        # 'rol_usuario': request.user.rol,  # Obtiene el rol del usuario
     }
     return render(request, 'users/profile.html', context)
 

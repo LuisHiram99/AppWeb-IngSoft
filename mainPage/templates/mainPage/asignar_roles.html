@@ -1,5 +1,10 @@
 {% extends "mainPage/base.html" %}
 {% block content %}
+
+<form method="post" action="/equipo/">
+    {% csrf_token %}
+    <input type="submit" name="{{proyecto.nombre}}" value="Regresar">
+</form>
     <h1>Asignar Roles para el Proyecto: {{ proyecto.nombre }}</h1>
     
     {% if request.user == proyecto.gestorProyecto %}
@@ -31,4 +36,5 @@
     {% else %}
         <p>No tienes permisos para asignar roles en este proyecto.</p>
     {% endif %}
+    
 {% endblock content %}

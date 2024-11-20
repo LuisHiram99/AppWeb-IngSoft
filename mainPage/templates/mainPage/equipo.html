@@ -3,30 +3,31 @@
 {% block content %}
 {% load static %}
 <!-- <link type='text/css' rel="stylesheet" href="{% static 'css/main.css' %}"> -->
-
-
+{% if request.method == 'POST' %}
+<form method="get" action="/equipo/">
+    <input type="submit" value="Regresar">
+</form>
+{% endif %}
 {% if hayEquipos %}
     <div class="contenido-tabla">
-        <table class="table table-hover">
-            <tr>
-                <th>Nombre del equipo</th>
-                <th></th>
-            </tr>
-            <tr>
-                <td style='text-align:center; vertical-align:middle'>{{equipo.nombre}}</td>
-                <td></td>
-            </tr>
-            {% for miembro in equipo.miembros.all %}
-            <tr>
-                <td>miembro{{ forloop.counter }}</td>
-                <td>{{miembro.usuario.username}}</td>
-            </tr>
-            {% endfor %}
-        </table>
+            <table class="table table-hover">
+                <tr>
+                    <th colspan="3">Nombre del equipo</th>
+                </tr>
+                <tr>
+                    <td colspan="3" style='text-align:center; vertical-align:middle'>{{equipo.nombre}}</td>
+                </tr>
+                {% for miembro in equipo.miembros.all %}
+                <tr>
+                    <td>Miembro {{ forloop.counter }}</td>
+                    <td>{{miembro.usuario.username}}</td>
+                    <td>{{miembro.rol}}</td>
+                </tr>
+                {% endfor %}
+            </table>
         <footer>
             <nav class="nav-opciones-equipo">
-                <a class="btn" href="/agregarMiembro/{{ equipo.proyecto.id }}">Agregar miembro</a>
-                <a class="btn" href="/eliminarMiembro/">Eliminar miembro</a>
+                <a class="btn" href="/editarEquipo/{{ equipo.proyecto.id }}">Editar equipo</a>
                 <a class="btn" href="{% url 'asignarRoles' id_proyecto=equipo.proyecto.id %}">Asignar roles</a>
             </nav>
         </footer>
@@ -56,48 +57,5 @@
         </table>
     </div>
 {% endif %}
-{% comment %} {% if pro %}
-    <div class="container text-center">
-        <h1>Miembros del equipo</h1>
-        <table class="table table-hover">
-            <tr>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Rol</th>
-                <th>cambiar rol</th>
-            </tr>
-            {% for usuario in usuarios %}
-                <tr>
-                    <td>{{usuario.first_name}}</td>
-                    <td>{{usuario.last_name}}</td>
-                    <td>{{usuario.rol}}</td>
-                    <td><form method="POST">
-                        <label for="CR">Rol: </label>
-                        <select name="CambiarRol" id="CR">
-                          <option value="2">2</option>
-                          <option value="1">1</option>
-                        </select>
-                        <input type="submit" value="Enviar" />
-                  </form></td>
-                </tr>
-            {% endfor %}
-
-        </table>
-
-    </div>
-{% else %}
-    <div>
-        <h1>Solo los gestores de proyecto pueden editar</h1>
-        <h2>Identificate como uno:</h2> 
-        <form action="{% url 'equipo' %}" method="POST">
-            {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" name="hazmeGP">
-            Hazme gestor de proyecto
-        </button>
-        </form>
-    </div>
-    
-{% endif %} {% endcomment %}
 
 {% endblock %}

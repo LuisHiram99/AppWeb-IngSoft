@@ -3,11 +3,12 @@
 
 {% block content %}
 
-<h1>Aquí agregaré un miembro</h1>
-
+<form method="post" action="/equipo/">
+    {% csrf_token %}
+    <input type="submit" name="{{miembros.all.0.equipo.proyecto.nombre}}" value="Regresar">
+</form>
 <div class="contenido text-center">
     <h1 style='text-align:center; vertical-align:middle'>Usuarios que son miembros del equipo</h1>
-    <hr>
     <table class="table table-hover">
         <tr>
             <th>Nombre</th>
@@ -36,7 +37,6 @@
 
 <div class="contenido text-center">
     <h1 style='text-align:center; vertical-align:middle'>Usuarios que puedes agregar al equipo</h1>
-    <hr>
     <table class="table table-hover">
         <tr>
             <th>Nombre</th>
