@@ -24,4 +24,6 @@ urlpatterns = [
     path('reporte/<int:reporte_id>/pdf/', views.gen_pdf, name='gen_pdf'),
     path('historias/',views.historias,name='historias'),
     path('outside/', views.outside, name='outside'),
+    path('reportes/editar/<int:reporte_id>/', views.Report, name='editar_reporte'),
+
 ]

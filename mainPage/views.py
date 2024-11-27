@@ -115,8 +115,16 @@ def gen_pdf(request, reporte_id):
     return httpResponse
 
 
-def Report(request):
+
+def Report(request, reporte_id=None):
     notifications = Notif.objects.all().order_by('-time')
+
+    reporte = None
+    if reporte_id:
+        reporte = get_object_or_404(Reportes, id=reporte_id)
+        if reporte.user != request.user:
+            messages.error(request, "No tienes permiso para editar este reporte.")
+            return redirect('reportes')
 
     if request.method == 'POST':
         title = request.POST.get('title')
@@ -127,16 +135,29 @@ def Report(request):
         doc = request.FILES.get('doc')
 
         if request.user.is_authenticated:
-            Reportes.objects.create(
-                user=request.user,
-                title=title,
-                area=area,
-                category=category,
-                content=content,
-                image=image,
-                doc=doc
-            )
-            mensaje = f"{request.user.username} agregó un nuevo reporte a la base de datos."
+            if reporte:
+                reporte.title = title
+                reporte.area = area
+                reporte.category = category
+                reporte.content = content
+                if image:
+                    reporte.image = image
+                if doc:
+                    reporte.doc = doc
+                reporte.save()
+                mensaje = f"{request.user.username} editó un reporte existente"
+            else:
+                Reportes.objects.create(
+                    user=request.user,
+                    title=title,
+                    area=area,
+                    category=category,
+                    content=content,
+                    image=image,
+                    doc=doc
+                )
+                mensaje = f"{request.user.username} agregó un nuevo reporte a la base de datos."
+
             Notif.objects.create(
                 user=request.user,
                 msg=mensaje
@@ -151,14 +172,15 @@ def Report(request):
     else:
         reportes_list = Reportes.objects.filter(user=request.user)
 
-    buscar_clave=request.GET.get('buscar')
+    buscar_clave = request.GET.get('buscar')
     if buscar_clave:
-        reportes_list = reportes_list.filter(title__icontains=buscar_clave)|reportes_list.filter(title__icontains=buscar_clave)
+        reportes_list = reportes_list.filter(title__icontains=buscar_clave) | reportes_list.filter(title__icontains=buscar_clave)
 
     return render(request, "mainPage/reportes.html", {
         'reportes': reportes_list,
         'usuario_actual': request.user,
-        'notifications': notifications
+        'notifications': notifications,
+        'reporte': reporte
     })
 
 def historias(request):
