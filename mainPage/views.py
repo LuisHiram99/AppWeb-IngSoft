@@ -1,12 +1,14 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 User = get_user_model()
-from .models import Reportes,HistoriaUsuario,Proyecto,Equipo,Miembro,RiesgoProyecto
+from .models import Reportes, HistoriaUsuario, Proyecto, Equipo, Miembro, RiesgoProyecto, Checklist
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import AsignarRolForm,ProyectoForm
-from django.http import HttpResponseForbidden
+from .forms import AsignarRolForm, ProyectoForm, ChecklistForm
+from django.http import HttpResponseForbidden, JsonResponse
+
 
 def riesgosProyecto(request):
     if request.user.is_authenticated:
@@ -425,3 +427,74 @@ def editar_proyecto(request, proyecto_id):
         form = ProyectoForm(instance=proyecto)
 
     return render(request, 'mainPage/editar_proyecto.html', {'form': form, 'proyecto': proyecto})
+
+@login_required
+def create_checklist(request):
+    if request.method == 'POST':
+        checklist_form = ChecklistForm(request.POST)
+        if checklist_form.is_valid():
+            checklist = checklist_form.save(commit=False)
+            checklist.user = request.user
+            checklist.save()
+            checklist_form.save_m2m()  
+            messages.success(request, "Checklist creado exitosamente.")
+            return redirect('checklist_view')
+    else:
+        checklist_form = ChecklistForm()
+
+    return render(request, 'mainPage/create_checklist.html', {'checklist_form': checklist_form})
+
+
+@login_required
+def checklist_view(request):
+    checklists = Checklist.objects.filter(user=request.user)
+
+    # Maneja el formulario de notas
+    if request.method == 'POST':
+        historia_id = request.POST.get('historia_id')
+        nota = request.POST.get('nota')
+
+        try:
+            historia = HistoriaUsuario.objects.get(id=historia_id)
+            historia.notas = nota
+            historia.save()
+            return JsonResponse({'status': 'success', 'nota': historia.notas})
+        except HistoriaUsuario.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Historia no encontrada'})
+
+    return render(request, 'mainPage/checklist_view.html', {
+        'checklists': checklists
+    })
+
+@login_required
+@require_POST
+def toggle_historia_estado(request, historia_id):
+    historia = get_object_or_404(HistoriaUsuario, id=historia_id)
+    historia.estado = not historia.estado  
+    historia.save()
+    return JsonResponse({'estado': historia.estado})
+
+
+@login_required
+def add_historias_to_checklist(request, checklist_id):
+    checklist = get_object_or_404(Checklist, id=checklist_id, user=request.user)
+    historias = HistoriaUsuario.objects.all()  
+
+    if request.method == 'POST':
+        historias_ids = request.POST.getlist('historias') 
+        historias_seleccionadas = HistoriaUsuario.objects.filter(id__in=historias_ids)
+
+        checklist.historias.add(*historias_seleccionadas) 
+        return redirect('checklist_view') 
+
+    return render(request, 'mainPage/add_historias_to_checklist.html', {
+        'checklist': checklist,
+        'historias': historias,
+    })
+
+def checklist_estado(request, checklist_id):
+    if request.method == 'POST':
+        checklist = get_object_or_404(Checklist, id=checklist_id)
+        checklist.estado = not checklist.estado  
+        checklist.save()
+        return JsonResponse({'estado': checklist.estado})
