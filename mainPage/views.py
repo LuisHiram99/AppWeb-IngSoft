@@ -1,9 +1,11 @@
-from django.shortcuts import render,redirect, get_object_or_404
+from django.shortcuts import render,redirect, get_object_or_404,HttpResponse
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 User = get_user_model()
-from .models import Reportes, HistoriaUsuario, Proyecto, Equipo, Miembro, RiesgoProyecto, Checklist
+from reportlab.pdfgen import canvas
+from django.contrib.auth import login,logout,authenticate
+from .models import Reportes, HistoriaUsuario, Proyecto, Equipo, Miembro, RiesgoProyecto, Checklist,Notif
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import AsignarRolForm, ProyectoForm, ChecklistForm
@@ -170,7 +172,35 @@ def eliminarMiembro(request,id_proyecto,id_miembro):
     else:
         redirect('login')
 
-def Report(request):
+def gen_pdf(request, reporte_id):
+    reporte = get_object_or_404(Reportes, id=reporte_id)
+
+    httpResponse= HttpResponse(content_type='application/pdf')
+    httpResponse['Content-Disposition'] = f'attachment; filename="reporte_{reporte.id}.pdf"'
+    pdf=canvas.Canvas(httpResponse)
+
+    pdf.setFont("Helvetica",13)
+    pdf.drawString(100,800, f"Título: {reporte.title}")
+    pdf.drawString(100,780, f"Área: {reporte.area}")
+    pdf.drawString(100,760, f"Categoría: {reporte.category}")
+    pdf.drawString(100,720, f"Contenido: {reporte.content}")
+
+    pdf.showPage()
+    pdf.save()
+    return httpResponse
+
+
+
+def Report(request, reporte_id=None):
+    notifications = Notif.objects.all().order_by('-time')
+
+    reporte = None
+    if reporte_id:
+        reporte = get_object_or_404(Reportes, id=reporte_id)
+        if reporte.user != request.user:
+            messages.error(request, "No tienes permiso para editar este reporte.")
+            return redirect('reportes')
+
     if request.method == 'POST':
         title = request.POST.get('title')
         area = request.POST.get('area')
@@ -180,15 +210,34 @@ def Report(request):
         doc = request.FILES.get('doc')
 
         if request.user.is_authenticated:
-            Reportes.objects.create(
+            if reporte:
+                reporte.title = title
+                reporte.area = area
+                reporte.category = category
+                reporte.content = content
+                if image:
+                    reporte.image = image
+                if doc:
+                    reporte.doc = doc
+                reporte.save()
+                mensaje = f"{request.user.username} editó un reporte existente"
+            else:
+                Reportes.objects.create(
+                    user=request.user,
+                    title=title,
+                    area=area,
+                    category=category,
+                    content=content,
+                    image=image,
+                    doc=doc
+                )
+                mensaje = f"{request.user.username} agregó un nuevo reporte a la base de datos."
+
+            Notif.objects.create(
                 user=request.user,
-                title=title,
-                area=area,
-                category=category,
-                content=content,
-                image=image,
-                doc=doc
+                msg=mensaje
             )
+            messages.success(request, mensaje)
             return redirect('reportes')
 
     filter_category = request.GET.get('filter_category')
@@ -198,9 +247,15 @@ def Report(request):
     else:
         reportes_list = Reportes.objects.filter(user=request.user)
 
+    buscar_clave = request.GET.get('buscar')
+    if buscar_clave:
+        reportes_list = reportes_list.filter(title__icontains=buscar_clave) | reportes_list.filter(title__icontains=buscar_clave)
+
     return render(request, "mainPage/reportes.html", {
         'reportes': reportes_list,
-        'usuario_actual': request.user
+        'usuario_actual': request.user,
+        'notifications': notifications,
+        'reporte': reporte
     })
 
 def historias(request):

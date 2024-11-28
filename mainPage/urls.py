@@ -32,11 +32,14 @@ path('checklist/', views.checklist_view, name='checklist_view'),  # AGREGADO 14/
     path('register/', user_views.register, name='register'),
     path('profile/', user_views.profile, name='profile'),
     path('reportes/', views.Report, name='reportes'),
-    
+    path('reporte/<int:reporte_id>/pdf/', views.gen_pdf, name='gen_pdf'),
     path('historias/',views.historias,name='historias'),
     path('outside/', views.outside, name='outside'),
+    path('reportes/editar/<int:reporte_id>/', views.Report, name='editar_reporte'),
+
     path('proyectos/', views.lista_proyectos_usuario, name='lista_proyectos'),
     path('proyectos/', views.lista_proyectos_usuario, name='lista_proyectos'),
     path('proyectos/<int:proyecto_id>/', views.detalle_proyecto, name='detalle_proyecto'),
     path('proyectos/<int:proyecto_id>/editar/', views.editar_proyecto, name='editar_proyecto'),
+
 ]
