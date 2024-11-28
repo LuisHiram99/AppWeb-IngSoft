@@ -10,49 +10,62 @@
 
 {% if hayProyectos %}
     {% if hayRiesgos %}
-    <div class="contenido-tabla">
-        <table class="table table-hover">
-            <tr>
-                <th colspan="5">Nombre del proyecto</th>
-            </tr>
-            <tr>
-                <td colspan="5" style='text-align:center; vertical-align:middle'>{{proyecto.nombre}}</td>
-            </tr>
-            {% for riesgo in proyecto.riesgos.all %}
-            <tr>
-                <td>Riesgo {{ forloop.counter }}</td>
-                <td>{{riesgo.titulo}}</td>
-                <td>{{riesgo.descripcion}}</td>
-                <td>{{riesgo.gravedad}}</td>
-                <td>
-                    <a class="btn" href="/eliminarRiesgo/{{ riesgo.id }}/">Eliminar riesgo</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
-        <footer>
-            <nav class="nav-opciones-equipo">
-                <a class="btn" href="/editarRiesgos/{{ riesgos.proyecto.id }}">Agregar riesgo</a>
-            </nav>
-        </footer>
+
+    <div class="contenido">
+        <header>
+            <h2>Riesgos del proyecto</h2>
+        </header>
+        <section>
+            <table class="table" style="margin-top: 20px; border-collapse: collapse;">
+                <thead>
+                    <tr style="height: 50px;">
+                        <th style="border: none; padding: 10px; text-align: center;" colspan="5">{{riesgos.all.0.proyecto.nombre}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for riesgo in proyecto.riesgos.all %}
+                    <tr>
+                        <td style="border: none; padding: 10px; text-align: center;">Riesgo {{ forloop.counter }}</td>
+                        <td style="border: none; padding: 10px; text-align: center;">{{riesgo.titulo}}</td>
+                        <td style="border: none; padding: 10px; text-align: center;">{{riesgo.descripcion}}</td>
+                        <td style="border: none; padding: 10px; text-align: center;">{{riesgo.gravedad}}</td>
+                        <td>
+                            <a class="btn btn-secondary" href="/eliminarRiesgo/{{ riesgo.id }}/" style="margin-top: 20px; display: inline-block;">Eliminar riesgo</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    
+                    
+                </tbody>
+            </table>
+            <a class="btn btn-secondary" href="/agregarRiesgo/{{ id_proyecto }}" style="margin-top: 20px; display: inline-block;">Agregar riesgo</a>
+        </section>
     </div>
     {% else %}
-    
-    <div class="contenido-tabla">
-        <table class="table table-hover">
-            <tr>
-                <th colspan="1">Nombre del equipo</th>
-            </tr>
-            <tr>
-                <td colspan="1" style='text-align:center; vertical-align:middle'>No se encontraron riesgos en este proyecto</td>
-            </tr>
-        </table>
-        <footer>
-            <nav class="nav-opciones-equipo">
-                <a class="btn" href="/agregarRiesgo/{{id_proyecto}}">Agregar riesgos</a>
-            </nav>
-        </footer>
+
+    <div class="contenido">
+        <header>
+            <h2>Riesgos del proyecto</h2>
+        </header>
+        <section>
+            <table class="table" style="margin-top: 20px; border-collapse: collapse;">
+                <thead>
+                    <tr style="height: 50px;">
+                        <th style="border: none; padding: 10px; text-align: center;" colspan="1">Nombre del equipo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="height: 60px;">
+                        <td style="border: none; padding: 10px; text-align: center;" colspan="1">No se encontraron riesgos en este proyecto</td>
+                    </tr>
+                </tbody>
+            </table>
+        <a class="btn btn-secondary" href="/agregarRiesgo/{{id_proyecto}}" style="margin-top: 20px; display: inline-block;">Agregar riesgos</a>
+        </section>
     </div>
+
+
+
     {% endif %}
 
 {% else %}
@@ -79,5 +92,34 @@
         </table>
     </div>
 {% endif %}
+<style>
+    .contenido {
+        margin: 20px 0;
+    }
 
+    .table {
+        width: 100%;
+        margin: 20px auto; 
+        border-collapse: collapse; 
+        border-bottom: 1px solid black;
+    }
+    .table tr{
+        border-bottom: 1px solid black;
+    }
+
+    .table th, .table td {
+        border: none; 
+        padding: 15px; 
+        text-align: center;
+    }
+
+    .btn {
+        margin-top: 10px; 
+    }
+
+    tr.bordered {
+        border-bottom: 1px solid #000;
+    }    
+</style>
 {% endblock %}
+
