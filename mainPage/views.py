@@ -2,11 +2,84 @@ from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 User = get_user_model()
-from .models import Reportes,HistoriaUsuario,Proyecto,Equipo,Miembro
+from .models import Reportes,HistoriaUsuario,Proyecto,Equipo,Miembro,RiesgoProyecto
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import AsignarRolForm 
+from .forms import AsignarRolForm,ProyectoForm
+from django.http import HttpResponseForbidden
 
+def riesgosProyecto(request):
+    if request.user.is_authenticated:
+        proyectos = Proyecto.objects.filter(usuarios=request.user)
+        username = request.user.username
+        if request.method == 'POST':
+            # Al momento de intentar acceder a los name de los inputs por medio de POST.['name_input']
+            #No era posible ahcer una comparativa con los obetos proyecto, por lo tanto guarde
+            #las keys del diccionario de POST.keys en un arreglo.
+            #Posteriormente itere sobre los proyectos y después sobre las llaves del post.
+            postkeys = request.POST.keys()
+            hayRiesgos = False
+            for proyecto in proyectos:
+                for key in postkeys:
+                    if key == proyecto.nombre:
+                        proyecto_contx = proyecto
+                        riesgos = RiesgoProyecto.objects.filter(id=proyecto.id)
+                        id_proyecto = proyecto.id
+                        if RiesgoProyecto.objects.filter(id=proyecto.id).count() != 0:
+                            hayRiesgos = True
+                        break
+            context={
+                    'proyecto': proyecto_contx,
+                    'id_proyecto': id_proyecto,
+                    'hayProyectos': True,
+                    'hayRiesgos': hayRiesgos,
+                    'riesgos': riesgos,
+                    'proyectos': proyectos,
+                    'username': username
+            }
+            return render(request,'mainPage/riesgos.html',context)
+            
+        context={
+                'hayProyectos': False,
+                'proyectos': proyectos,
+                'username': username
+        }
+        return render(request,'mainPage/riesgos.html',context)
+    else:
+        redirect('login')
+
+def agregarRiesgo(request,id_proyecto):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            proyecto = Proyecto.objects.get(id=id_proyecto)
+            titulo = request.POST.get("titulo-riesgo")
+            descripcion = request.POST.get("descripcion-riesgo")
+            gravedad = request.POST.get("gravedad-riesgo")
+
+            nuevo_riesgo = RiesgoProyecto(
+                Titulo = titulo,
+                descripcion = descripcion,
+                gravedad = gravedad,
+                proyecto = proyecto
+            )
+
+            nuevo_riesgo.save()
+            return redirect('riesgos')
+
+        context = {
+            'id_p': id_proyecto,
+        }
+        return render(request,'mainPage/agregar_riesgos.html',context)
+    else:
+        redirect('login')
+
+def eliminarRiesgo(request,id_riesgo):
+    if request.user.is_authenticated:
+        riesgo = RiesgoProyecto.objects.get(id=id_riesgo)
+        riesgo.delete()
+        return redirect('riesgos')
+    else:
+        redirect('login')
 
 def equipo(request):
     if request.user.is_authenticated:
@@ -192,21 +265,50 @@ def crearProyecto(request):
             miembro = Miembro(usuario=request.user,rol=2,equipo=equipo)
             miembro.save()
 
+            control_versiones = request.POST.get("control-versiones")
+            editores_codigo = request.POST.get("editores-codigo")
+            hardware = request.POST.get("hardware")
+            herramientas_prueba = request.POST.get("herramientas-prueba")
+            canal_comunicacion = request.POST.get("canal-comunicacion")
+            recurso_financiero = request.POST.get("recurso-financiero")
+            estandares_plantillas = request.POST.get("estandares-plantillas")
+            frecuencia_reuniones = request.POST.get("frecuencia-reuniones")
+            entrega_reportes = request.POST.get("entrega-reportes")
+
             nuevo_proyecto = Proyecto(
                 nombre=nombre,
                 fechaInicio=fi,
                 fechaFin=ff,
                 equipo=equipo,
-                gestorProyecto=request.user
+                gestorProyecto=request.user,
+                recursos_tecnologicos=f"Control de versiones: {control_versiones}\nEditores: {editores_codigo}\nHardware: {hardware}\nHerramientas de prueba: {herramientas_prueba}\nCanal de comunicación: {canal_comunicacion}",
+                recurso_financiero=recurso_financiero,
+                estandares_y_plantillas=estandares_plantillas,
+                reuniones_y_reportes=f"Frecuencia: {frecuencia_reuniones}\nEntrega: {entrega_reportes}",
             )
 
             nuevo_proyecto.save()
             request.user.proyectos.add(nuevo_proyecto)
-            return redirect("equipo")
+
+            return redirect("lista_proyectos")
         else:
             return render(request,'mainPage/crear_proyecto.html')
     else:
         return redirect('login')
+    
+def lista_proyectos_usuario(request):
+    """
+    Vista que lista todos los proyectos donde el usuario es parte.
+    """
+    proyectos = Proyecto.objects.filter(gestorProyecto=request.user)
+    return render(request, 'mainPage/lista_proyectos.html', {'proyectos': proyectos})
+
+def detalle_proyecto(request, proyecto_id):
+    """
+    Vista que muestra los detalles de un proyecto.
+    """
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+    return render(request, 'mainPage/detalle_proyecto.html', {'proyecto': proyecto})
 
 def outside (request):
     return render(request, 'mainPage/outside.html')
@@ -306,3 +408,20 @@ def asignar_roles(request, id_proyecto):
     }
     return render(request, 'mainPage/asignar_roles.html', context)
 
+@login_required
+def editar_proyecto(request, proyecto_id):
+    proyecto = get_object_or_404(Proyecto, id=proyecto_id)
+
+    # Verifica si el usuario es el gestor del equipo
+    if proyecto.gestorProyecto != request.user:
+        return HttpResponseForbidden("No tienes permisos para editar este proyecto.")
+
+    if request.method == 'POST':
+        form = ProyectoForm(request.POST, instance=proyecto)
+        if form.is_valid():
+            form.save()
+            return redirect('detalle_proyecto', proyecto_id=proyecto.id)
+    else:
+        form = ProyectoForm(instance=proyecto)
+
+    return render(request, 'mainPage/editar_proyecto.html', {'form': form, 'proyecto': proyecto})

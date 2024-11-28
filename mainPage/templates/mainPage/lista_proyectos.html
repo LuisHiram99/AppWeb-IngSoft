@@ -1,0 +1,60 @@
+{% extends "mainPage/base.html" %}
+
+{% block content %}
+<div class="contenido">
+    <header>
+        <h2>Mis Proyectos</h2>
+    </header>
+    <section>
+        {% if proyectos %}
+        <table class="table" style="margin-top: 20px; border-collapse: collapse;">
+            <thead>
+                <tr style="height: 50px;">
+                    <th style="border: none; padding: 10px; text-align: center;">Nombre</th>
+                    <th style="border: none; padding: 10px; text-align: center;">Fecha de inicio</th>
+                    <th style="border: none; padding: 10px; text-align: center;">Fecha de fin</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for proyecto in proyectos %}
+                <tr style="height: 60px;">
+                    <td style="border: none; padding: 10px; text-align: center;">{{ proyecto.nombre }}</td>
+                    <td style="border: none; padding: 10px; text-align: center;">{{ proyecto.fechaInicio }}</td>
+                    <td style="border: none; padding: 10px; text-align: center;">{{ proyecto.fechaFin }}</td>
+                    <td style="border: none; padding: 10px; text-align: center;">
+                        <a href="{% url 'detalle_proyecto' proyecto.id %}" class="btn btn-info" style="margin: 5px;">Detalles</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="margin-top: 20px;">No estás asignado a ningún proyecto.</p>
+        {% endif %}
+    <a href="{% url 'crearProyecto' %}" class="btn btn-secondary" style="margin-top: 20px; display: inline-block;">Crear Proyecto</a>
+    </section>
+</div>
+
+<style>
+    .contenido {
+        margin: 20px 0;
+    }
+
+    .table {
+        width: 100%;
+        margin: 20px auto; 
+        border-collapse: collapse; 
+    }
+
+    .table th, .table td {
+        border: none; 
+        padding: 15px; 
+        text-align: center;
+    }
+
+    .btn {
+        margin-top: 10px; 
+    }
+</style>
+{% endblock %}
