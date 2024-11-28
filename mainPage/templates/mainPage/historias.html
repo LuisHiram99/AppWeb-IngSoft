@@ -10,194 +10,173 @@
 </head>
 <div class="main-container">
     <main>
+        <div id="notification-container" class="notification"></div>
         <h1>Historias de usuario</h1>
         <button id="add-task-button">Añadir nueva historia de usuario</button>
         <div id="new-task-form" style="display: none;">
             <label for="new-task-input">Título:</label>
             <input type="text" id="new-task-input" placeholder="Yo como usuario quiero ..." required>
-            <label for="new-task-description">Descripción:</label>
-            <textarea id="new-task-description" placeholder="Descripción de la historia de usuario" required></textarea>
+            <label for="new-task-description">Criterios de aceptación:</label>
+            <textarea id="new-task-description" placeholder="Criterios de aceptación de la historia de usuario" required></textarea>
             <label for="start-date">Fecha inicial:</label>
-            <input type="date" id="start-date" placeholder="Fecha de inicio" required>
+            <input type="date" id="start-date" required>
             <label for="end-date">Fecha de cierre:</label>
-            <input type="date" id="end-date" placeholder="Fecha de cierre" required>
+            <input type="date" id="end-date" required>
             <label for="role-select">Rol:</label>
-            <select id="role-select">
+            <select id="role-select" required>
                 <option value="" disabled selected>Selecciona un rol</option>
                 <option value="desarrollador">Desarrollador</option>
                 <option value="diseñador">Diseñador</option>
                 <option value="manager">Manager</option>
             </select>
+            <label for="new-task-file">Recursos (opcional):</label>
+            <input type="file" id="new-task-file">
             <button id="new-task-submit">Añadir historia de usuario</button>
         </div>
         <div class="task-header">
+            <div id="task-stats">
+                <p>Tareas activas: <span id="active-tasks-count">0</span></p>
+                <p>Tareas completadas: <span id="completed-tasks-count">0</span></p>
+                <p>Tareas totales: <span id="total-tasks-count">0</span></p>
+            </div>
             <h2>Historias de usuario activas</h2>
-            <button id="sort-by-date-button">Ordenar por mas urgentes</button>
+            <button id="sort-by-date-button">Ordenar por más urgentes</button>
             <input type="text" id="search-input" placeholder="Buscar por título..." class="search-input">
         </div>
         <div id="tasks" class="task-list"></div>
     </main>
 
 <script>
-  const addTaskButton = document.getElementById("add-task-button");
-  const newTaskForm = document.getElementById("new-task-form");
-  const newTaskSubmit = document.getElementById("new-task-submit");
-  const tasksContainer = document.getElementById("tasks");
-  const searchInput = document.getElementById("search-input");
-  const sortByDateButton = document.getElementById("sort-by-date-button");
+const addTaskButton = document.getElementById("add-task-button");
+const newTaskForm = document.getElementById("new-task-form");
+const newTaskSubmit = document.getElementById("new-task-submit");
+const tasksContainer = document.getElementById("tasks");
+const searchInput = document.getElementById("search-input");
+const sortByDateButton = document.getElementById("sort-by-date-button");
 
-  addTaskButton.addEventListener("click", () => {
+// Función para mostrar notificaciones
+function showNotification(message, type = "success") {
+    const notificationContainer = document.getElementById("notification-container");
+
+    notificationContainer.textContent = message;
+    notificationContainer.classList.remove("error", "success"); // Limpiar cualquier clase anterior
+    notificationContainer.classList.add(type); // Añadir el tipo de notificación (éxito o error)
+
+    notificationContainer.style.display = "block";
+
+    // Ocultar la notificación después de 3 segundos
+    setTimeout(() => {
+        notificationContainer.style.display = "none";
+    }, 3000);
+}
+
+// Función para actualizar estadísticas de tareas
+function updateTaskStats() {
+    const activeTasks = tasksContainer.querySelectorAll(".task:not(.completed)").length;
+    const completedTasks = tasksContainer.querySelectorAll(".task.completed").length;
+    const totalTasks = activeTasks + completedTasks;
+    document.getElementById("task-stats").textContent = `Tareas activas: ${activeTasks} | Tareas completadas: ${completedTasks} | Total: ${totalTasks}`;
+}
+
+addTaskButton.addEventListener("click", () => {
     newTaskForm.style.display = newTaskForm.style.display === "none" ? "block" : "none";
-  });
+});
 
-  // Función para agregar una historia de usuario
-  newTaskSubmit.addEventListener("click", (event) => {
-    event.preventDefault(); // Prevenir el comportamiento por defecto del botón
+newTaskSubmit.addEventListener("click", (event) => {
+    event.preventDefault();
+
     const taskName = document.getElementById("new-task-input").value;
     const taskDescription = document.getElementById("new-task-description").value;
     const startDate = document.getElementById("start-date").value;
     const endDate = document.getElementById("end-date").value;
     const role = document.getElementById("role-select").value;
+    const fileInput = document.getElementById("new-task-file");
+    const file = fileInput.files[0];
 
-    // Limpiar mensajes de error anteriores
-    let errorMessage = document.getElementById("error-message");
-    if (errorMessage) {
-        errorMessage.remove();
-    }
-
-    // Validaciones de campos vacíos
+    // Validaciones
     if (!taskName || !taskDescription || !startDate || !endDate || !role) {
-        const error = document.createElement("p");
-        error.id = "error-message";
-        error.style.color = "red";
-        error.textContent = "Por favor, completa todos los campos.";
-        newTaskForm.appendChild(error);
+        alert("Por favor, completa todos los campos obligatorios.");
         return;
     }
 
-    // Validación de que la fecha de fin sea después de la fecha de inicio
     if (new Date(endDate) < new Date(startDate)) {
-        const error = document.createElement("p");
-        error.id = "error-message";
-        error.style.color = "red";
-        error.textContent = "La fecha de cierre no puede ser anterior a la fecha de inicio.";
-        newTaskForm.appendChild(error);
+        alert("La fecha de cierre no puede ser anterior a la fecha de inicio.");
         return;
     }
 
     // Crear nueva tarea
-    const taskId = `task-${Date.now()}`; // Generar un ID único
     const taskElement = document.createElement("div");
-    taskElement.id = taskId;
     taskElement.classList.add("task");
+
+    let fileHTML = "";
+    if (file) {
+        const fileURL = URL.createObjectURL(file);
+        fileHTML = `<p class="task-file">Archivo: <a href="${fileURL}" target="_blank">${file.name}</a></p>`;
+    }
+
     taskElement.innerHTML = `
-        <h3 class="task-name">${taskName}</h3>
-        <p class="task-description">${taskDescription}</p>
-        <p class="task-start-date">Inicio: ${startDate}</p>
-        <p class="task-end-date">Cierre: ${endDate}</p>
-        <p class="task-role">Rol: ${role}</p>
-        <button class="edit-task-button">Editar</button>
-        <button class="delete-task-button" style="background-color: #EC4899; color: white; border: 2px solid white; cursor: pointer; margin-left: 10px; border-radius: 4px;">Eliminar</button>
-        <button class="complete-task-button" style="background-color: #34D399; color: white; border: 2px solid white; cursor: pointer; margin-left: 10px; border-radius: 4px;">Completar</button>
-        <div class="edit-task-form" style="display: none;">
-            <input type="text" class="edit-task-input" placeholder="Nombre de la historia" value="${taskName}" required>
-            <textarea class="edit-task-description" placeholder="Descripción" required>${taskDescription}</textarea>
-            <input type="date" class="edit-start-date" value="${startDate}" required>
-            <input type="date" class="edit-end-date" value="${endDate}" required>
-            <select class="edit-role-select">
+        <div class="task-view">
+            <h3 class="task-name">${taskName}</h3>
+            <p class="task-description">${taskDescription}</p>
+            <p class="task-start-date">Inicio: ${startDate}</p>
+            <p class="task-end-date">Cierre: ${endDate}</p>
+            <p class="task-role">Rol: ${role}</p>
+            ${fileHTML}
+            <button class="edit-task-button">Editar</button>
+            <button class="delete-task-button">Eliminar</button>
+            <button class="complete-task-button">Completar</button>
+        </div>
+        <div class="task-edit" style="display: none;">
+            <label>Título:</label>
+            <input type="text" class="edit-task-name" value="${taskName}">
+            <label>Descripción:</label>
+            <textarea class="edit-task-description">${taskDescription}</textarea>
+            <label>Inicio:</label>
+            <input type="date" class="edit-task-start-date" value="${startDate}">
+            <label>Cierre:</label>
+            <input type="date" class="edit-task-end-date" value="${endDate}">
+            <label>Rol:</label>
+            <select class="edit-task-role">
                 <option value="desarrollador" ${role === 'desarrollador' ? 'selected' : ''}>Desarrollador</option>
                 <option value="diseñador" ${role === 'diseñador' ? 'selected' : ''}>Diseñador</option>
                 <option value="manager" ${role === 'manager' ? 'selected' : ''}>Manager</option>
             </select>
-            <button class="update-task-button">Actualizar historia de usuario</button>
+            <button class="save-task-button">Guardar</button>
+            <button class="cancel-edit-button">Cancelar</button>
         </div>
-        <p class="edit-error-message" style="color:red; display:none;"></p>
     `;
-    
-    // Agregar la nueva tarea al principio (antes de las completadas)
+
     tasksContainer.insertBefore(taskElement, tasksContainer.firstChild);
 
-    // Añadir evento de edición
-    const editButton = taskElement.querySelector(".edit-task-button");
-    const editForm = taskElement.querySelector(".edit-task-form");
-    editButton.addEventListener("click", () => {
-        editForm.style.display = editForm.style.display === "none" ? "block" : "none";
-    });
-
-    // Función para actualizar la historia de usuario
-    const updateTaskButton = taskElement.querySelector(".update-task-button");
-    updateTaskButton.addEventListener("click", (e) => {
-        e.preventDefault(); // Prevenir el comportamiento por defecto del botón
-        const editedTaskName = taskElement.querySelector(".edit-task-input").value;
-        const editedTaskDescription = taskElement.querySelector(".edit-task-description").value;
-        const editedStartDate = taskElement.querySelector(".edit-start-date").value;
-        const editedEndDate = taskElement.querySelector(".edit-end-date").value;
-        const editedRole = taskElement.querySelector(".edit-role-select").value;
-        const editErrorMessage = taskElement.querySelector(".edit-error-message");
-
-        // Validación de campos vacíos en la edición
-        if (!editedTaskName || !editedTaskDescription || !editedStartDate || !editedEndDate || !editedRole) {
-            editErrorMessage.textContent = "Por favor, completa todos los campos.";
-            editErrorMessage.style.display = "block";
-            return;
-        }
-
-        // Validación de que la fecha de cierre no sea anterior a la fecha de inicio en la edición
-        if (new Date(editedEndDate) < new Date(editedStartDate)) {
-            editErrorMessage.textContent = "La fecha de cierre no puede ser anterior a la fecha de inicio.";
-            editErrorMessage.style.display = "block";
-            return;
-        }
-
-        // Ocultar mensaje de error
-        editErrorMessage.style.display = "none";
-
-        // Actualizar la tarea
-        taskElement.querySelector(".task-name").textContent = editedTaskName;
-        taskElement.querySelector(".task-description").textContent = editedTaskDescription;
-        taskElement.querySelector(".task-start-date").textContent = "Inicio: " + editedStartDate;
-        taskElement.querySelector(".task-end-date").textContent = "Cierre: " + editedEndDate;
-        taskElement.querySelector(".task-role").textContent = "Rol: " + editedRole;
-        editForm.style.display = "none"; // Ocultar el formulario de edición
-    });
-
-    // Añadir evento para eliminar la tarea
-    const deleteButton = taskElement.querySelector(".delete-task-button");
-    deleteButton.addEventListener("click", () => {
-        tasksContainer.removeChild(taskElement);
-    });
-
-    // Añadir evento para marcar la tarea como completada
-    const completeButton = taskElement.querySelector(".complete-task-button");
-    completeButton.addEventListener("click", () => {
-        // Aplica filtro blanco trasparente y mueve la tarea al fondo
-        taskElement.classList.toggle("completed");
-        taskElement.style.filter = "brightness(0.6)"; // Filtro blanco medio transparente
-        tasksContainer.appendChild(taskElement); // Mover al fondo
-    });
-
-    // Limpiar el formulario de nueva tarea
+    // Limpiar formulario
     document.getElementById("new-task-input").value = "";
     document.getElementById("new-task-description").value = "";
     document.getElementById("start-date").value = "";
     document.getElementById("end-date").value = "";
     document.getElementById("role-select").value = "";
-  });
+    document.getElementById("new-task-file").value = "";
 
-  // Función para ordenar tareas por fecha de cierre
-  sortByDateButton.addEventListener("click", () => {
+    // Ocultar el formulario después de añadir la tarea
+    newTaskForm.style.display = "none";
+
+    // Actualizar contadores
+    updateTaskStats();
+
+    // Mostrar notificación de tarea añadida con éxito
+    showNotification("Tarea añadida exitosamente", "success");
+});
+
+sortByDateButton.addEventListener("click", () => {
     const tasks = Array.from(tasksContainer.querySelectorAll(".task"));
     tasks.sort((a, b) => {
         const endDateA = new Date(a.querySelector(".task-end-date").textContent.replace("Cierre: ", ""));
         const endDateB = new Date(b.querySelector(".task-end-date").textContent.replace("Cierre: ", ""));
         return endDateA - endDateB;
     });
-    // Volver a agregar las tareas ordenadas al contenedor
     tasks.forEach(task => tasksContainer.appendChild(task));
-  });
+});
 
-  // Función para realizar la búsqueda
-  searchInput.addEventListener("input", (e) => {
+searchInput.addEventListener("input", (e) => {
     const searchQuery = e.target.value.toLowerCase();
     const tasks = tasksContainer.querySelectorAll(".task");
 
@@ -209,10 +188,73 @@
             task.style.display = "none";
         }
     });
-  });
+});
 
+// Funcionalidad para editar tareas
+tasksContainer.addEventListener("click", (e) => {
+    if (e.target.classList.contains("edit-task-button")) {
+        const taskElement = e.target.closest(".task");
+        const taskView = taskElement.querySelector(".task-view");
+        const taskEdit = taskElement.querySelector(".task-edit");
+
+        taskView.style.display = "none";
+        taskEdit.style.display = "block";
+    }
+
+    if (e.target.classList.contains("save-task-button")) {
+        const taskElement = e.target.closest(".task");
+        const taskView = taskElement.querySelector(".task-view");
+        const taskEdit = taskElement.querySelector(".task-edit");
+
+        const newTaskName = taskEdit.querySelector(".edit-task-name").value;
+        const newTaskDescription = taskEdit.querySelector(".edit-task-description").value;
+        const newStartDate = taskEdit.querySelector(".edit-task-start-date").value;
+        const newEndDate = taskEdit.querySelector(".edit-task-end-date").value;
+        const newRole = taskEdit.querySelector(".edit-task-role").value;
+
+        // Actualizar vista
+        taskView.querySelector(".task-name").textContent = newTaskName;
+        taskView.querySelector(".task-description").textContent = newTaskDescription;
+        taskView.querySelector(".task-start-date").textContent = `Inicio: ${newStartDate}`;
+        taskView.querySelector(".task-end-date").textContent = `Cierre: ${newEndDate}`;
+        taskView.querySelector(".task-role").textContent = `Rol: ${newRole}`;
+
+        taskView.style.display = "block";
+        taskEdit.style.display = "none";
+
+        showNotification("Tarea actualizada exitosamente", "success");
+    }
+
+    if (e.target.classList.contains("cancel-edit-button")) {
+        const taskElement = e.target.closest(".task");
+        const taskView = taskElement.querySelector(".task-view");
+        const taskEdit = taskElement.querySelector(".task-edit");
+
+        taskView.style.display = "block";
+        taskEdit.style.display = "none";
+    }
+
+    if (e.target.classList.contains("delete-task-button")) {
+        const taskElement = e.target.closest(".task");
+        taskElement.remove();
+
+        // Actualizar contadores
+        updateTaskStats();
+
+        showNotification("Tarea eliminada", "error");
+    }
+
+    if (e.target.classList.contains("complete-task-button")) {
+        const taskElement = e.target.closest(".task");
+        taskElement.classList.add("completed");
+
+        // Actualizar contadores
+        updateTaskStats();
+
+        showNotification("Tarea completada", "success");
+    }
+});
 </script>
 </div>
 </html>
-
 {% endblock %}
