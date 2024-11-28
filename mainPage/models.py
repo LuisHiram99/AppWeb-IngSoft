@@ -50,6 +50,9 @@ class HistoriaUsuario(models.Model):
     #consulta para accedar a las historias pertenecientes a cierto proyecto: 
     #algunProyecto.historias.all()
 
+    checklists = models.ManyToManyField('Checklist', related_name='historias_en_checklist', blank=True)
+    notas = models.TextField('Notas', blank=True, null=True)
+
     def __str__(self):
         datosFila = "Nombre historia: " + self.nombre + " - Fecha inicio: " + str(self.fechaInicio)
         datosFila += " - Fecha fin: " + str(self.fechaFin)
@@ -123,3 +126,13 @@ class Notification(models.Model):
         link = models.URLField(blank=True, null=True)
         is_read = models.BooleanField(default=False)
         created_at = models.DateTimeField(auto_now_add=True)
+
+class Checklist(models.Model):
+    name = models.CharField(max_length=100)
+    user = models.ForeignKey(User, related_name='checklists', on_delete=models.CASCADE)
+    historias = models.ManyToManyField('HistoriaUsuario', related_name='checklists_asociados', blank=True)
+    estado = models.BooleanField(default=False)
+
+
+    def __str__(self):
+        return self.name
