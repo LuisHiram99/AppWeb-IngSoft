@@ -1,18 +1,10 @@
 {% extends "mainPage/base.html" %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Foro de Reportes</title>
-
     {% load static %}
         <link type='text/css' rel="stylesheet" href="{% static 'css/styles.css' %}">
-</head>
 <body>
-    <div class="container">
+    <div class="container-report">
         <h1>Foro de Reportes</h1>
         <div class="post-form">
             <form id="postForm" method="POST" enctype="multipart/form-data">
@@ -90,5 +82,5 @@
 
     <script src="{% static 'scripts.js' %}"></script>
 </body>
-</html>
+
 {% endblock %}
