@@ -1,12 +1,16 @@
-from django.shortcuts import render,redirect, get_object_or_404
+from django.shortcuts import render,redirect, get_object_or_404,HttpResponse
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 User = get_user_model()
-from .models import Reportes,HistoriaUsuario,Proyecto,Equipo,Miembro,RiesgoProyecto
+from reportlab.pdfgen import canvas
+from django.contrib.auth import login,logout,authenticate
+from .models import Reportes, HistoriaUsuario, Proyecto, Equipo, Miembro, RiesgoProyecto, Checklist,Notif
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import AsignarRolForm,ProyectoForm
-from django.http import HttpResponseForbidden
+from .forms import AsignarRolForm, ProyectoForm, ChecklistForm
+from django.http import HttpResponseForbidden, JsonResponse
+
 
 def riesgosProyecto(request):
     if request.user.is_authenticated:
@@ -168,7 +172,35 @@ def eliminarMiembro(request,id_proyecto,id_miembro):
     else:
         redirect('login')
 
-def Report(request):
+def gen_pdf(request, reporte_id):
+    reporte = get_object_or_404(Reportes, id=reporte_id)
+
+    httpResponse= HttpResponse(content_type='application/pdf')
+    httpResponse['Content-Disposition'] = f'attachment; filename="reporte_{reporte.id}.pdf"'
+    pdf=canvas.Canvas(httpResponse)
+
+    pdf.setFont("Helvetica",13)
+    pdf.drawString(100,800, f"Título: {reporte.title}")
+    pdf.drawString(100,780, f"Área: {reporte.area}")
+    pdf.drawString(100,760, f"Categoría: {reporte.category}")
+    pdf.drawString(100,720, f"Contenido: {reporte.content}")
+
+    pdf.showPage()
+    pdf.save()
+    return httpResponse
+
+
+
+def Report(request, reporte_id=None):
+    notifications = Notif.objects.all().order_by('-time')
+
+    reporte = None
+    if reporte_id:
+        reporte = get_object_or_404(Reportes, id=reporte_id)
+        if reporte.user != request.user:
+            messages.error(request, "No tienes permiso para editar este reporte.")
+            return redirect('reportes')
+
     if request.method == 'POST':
         title = request.POST.get('title')
         area = request.POST.get('area')
@@ -178,15 +210,34 @@ def Report(request):
         doc = request.FILES.get('doc')
 
         if request.user.is_authenticated:
-            Reportes.objects.create(
+            if reporte:
+                reporte.title = title
+                reporte.area = area
+                reporte.category = category
+                reporte.content = content
+                if image:
+                    reporte.image = image
+                if doc:
+                    reporte.doc = doc
+                reporte.save()
+                mensaje = f"{request.user.username} editó un reporte existente"
+            else:
+                Reportes.objects.create(
+                    user=request.user,
+                    title=title,
+                    area=area,
+                    category=category,
+                    content=content,
+                    image=image,
+                    doc=doc
+                )
+                mensaje = f"{request.user.username} agregó un nuevo reporte a la base de datos."
+
+            Notif.objects.create(
                 user=request.user,
-                title=title,
-                area=area,
-                category=category,
-                content=content,
-                image=image,
-                doc=doc
+                msg=mensaje
             )
+            messages.success(request, mensaje)
             return redirect('reportes')
 
     filter_category = request.GET.get('filter_category')
@@ -196,9 +247,15 @@ def Report(request):
     else:
         reportes_list = Reportes.objects.filter(user=request.user)
 
+    buscar_clave = request.GET.get('buscar')
+    if buscar_clave:
+        reportes_list = reportes_list.filter(title__icontains=buscar_clave) | reportes_list.filter(title__icontains=buscar_clave)
+
     return render(request, "mainPage/reportes.html", {
         'reportes': reportes_list,
-        'usuario_actual': request.user
+        'usuario_actual': request.user,
+        'notifications': notifications,
+        'reporte': reporte
     })
 
 def historias(request):
@@ -425,3 +482,74 @@ def editar_proyecto(request, proyecto_id):
         form = ProyectoForm(instance=proyecto)
 
     return render(request, 'mainPage/editar_proyecto.html', {'form': form, 'proyecto': proyecto})
+
+@login_required
+def create_checklist(request):
+    if request.method == 'POST':
+        checklist_form = ChecklistForm(request.POST)
+        if checklist_form.is_valid():
+            checklist = checklist_form.save(commit=False)
+            checklist.user = request.user
+            checklist.save()
+            checklist_form.save_m2m()  
+            messages.success(request, "Checklist creado exitosamente.")
+            return redirect('checklist_view')
+    else:
+        checklist_form = ChecklistForm()
+
+    return render(request, 'mainPage/create_checklist.html', {'checklist_form': checklist_form})
+
+
+@login_required
+def checklist_view(request):
+    checklists = Checklist.objects.filter(user=request.user)
+
+    # Maneja el formulario de notas
+    if request.method == 'POST':
+        historia_id = request.POST.get('historia_id')
+        nota = request.POST.get('nota')
+
+        try:
+            historia = HistoriaUsuario.objects.get(id=historia_id)
+            historia.notas = nota
+            historia.save()
+            return JsonResponse({'status': 'success', 'nota': historia.notas})
+        except HistoriaUsuario.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Historia no encontrada'})
+
+    return render(request, 'mainPage/checklist_view.html', {
+        'checklists': checklists
+    })
+
+@login_required
+@require_POST
+def toggle_historia_estado(request, historia_id):
+    historia = get_object_or_404(HistoriaUsuario, id=historia_id)
+    historia.estado = not historia.estado  
+    historia.save()
+    return JsonResponse({'estado': historia.estado})
+
+
+@login_required
+def add_historias_to_checklist(request, checklist_id):
+    checklist = get_object_or_404(Checklist, id=checklist_id, user=request.user)
+    historias = HistoriaUsuario.objects.all()  
+
+    if request.method == 'POST':
+        historias_ids = request.POST.getlist('historias') 
+        historias_seleccionadas = HistoriaUsuario.objects.filter(id__in=historias_ids)
+
+        checklist.historias.add(*historias_seleccionadas) 
+        return redirect('checklist_view') 
+
+    return render(request, 'mainPage/add_historias_to_checklist.html', {
+        'checklist': checklist,
+        'historias': historias,
+    })
+
+def checklist_estado(request, checklist_id):
+    if request.method == 'POST':
+        checklist = get_object_or_404(Checklist, id=checklist_id)
+        checklist.estado = not checklist.estado  
+        checklist.save()
+        return JsonResponse({'estado': checklist.estado})
