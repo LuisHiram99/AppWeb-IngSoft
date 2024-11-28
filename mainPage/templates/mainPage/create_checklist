@@ -1,0 +1,19 @@
+{% extends 'mainPage/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Crear Checklist</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_name">Nombre del Checklist</label>
+            {{ checklist_form.name }}
+        </div>
+        <div class="form-group">
+            <label for="id_historias">Seleccionar Historias de Usuario</label>
+            {{ checklist_form.historias }}
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Crear Checklist</button>
+    </form>
+</div>
+{% endblock %}
