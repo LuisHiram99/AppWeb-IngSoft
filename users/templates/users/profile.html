@@ -2,8 +2,9 @@
 {% load crispy_forms_filters %}
 {% load crispy_forms_tags %}
 {% block content %}
-    <h1>Perfil de usuario</h1>
-    <div class="content-section">
+<div class="container mt-4"> <!-- Agregamos un contenedor con margen superior -->
+    <h1 class="text-center">Perfil de usuario</h1>
+        <div class="content-section" style="margin: 20px auto; max-width: 1500px;">
         <div class="row">
             <div class="col-md-4">
                 <div class="media">
@@ -16,7 +17,8 @@
                     <p class="text-secondary">{{ user.email }}</p>
 
                     <!-- Mostrar el rol del usuario actualizando en tiempo real -->
-                    {% comment %} <p><strong>Rol:</strong>
+                    {% comment %}
+                    <p><strong>Rol:</strong>
                         {% if user.miembros.first.rol == 1 %}
                             Administrador
                         {% elif user.miembros.first.rol == 2 %}
@@ -26,7 +28,8 @@
                         {% else %}
                             Sin rol asignado
                         {% endif %}
-                    </p> {% endcomment %}
+                    </p>
+                    {% endcomment %}
                 </div>
             </div>
         </div>
@@ -43,4 +46,5 @@
             </div>
         </form>
     </div>
+</div>
 {% endblock content %}

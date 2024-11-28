@@ -1,0 +1,41 @@
+{% extends "mainPage/base.html" %}
+
+
+
+{% block content%}
+
+
+<div class="contenido">
+    <form action="/agregarRiesgo/{{id_p}}/" method="POST">
+        {% csrf_token %}
+        <header>
+            <h2> Agregar un nuevo riesgo</h2>
+        </header>
+        <section>
+            <label class="requerido">Titulo:</label>
+            <input type="text" name="titulo-riesgo" required>
+
+            <hr/>
+            <label class="requerido">Descripción</label>
+            <input type="text" name="descripcion-riesgo" required>
+
+            <hr/>
+            <select name="gravedad-riesgo" required>
+                <option value="">Gravedad del riesgo</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+            <hr>
+        </section>
+
+        <footer>
+            <nav class="nav-opciones-proyecto">
+                <input type="submit" class="btn" value="Crear riesgo"/>
+                <a class="btn" href="/">Cancelar</a>
+            </nav>
+        </footer>
+    </form>
+</div>  <!-- Se termina el div contenido -->
+
+{% endblock %}
