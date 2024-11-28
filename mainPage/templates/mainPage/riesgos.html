@@ -1,0 +1,83 @@
+{% extends "mainPage/base.html" %}
+
+{% block content %}
+
+{% if request.method == 'POST' %}
+<form method="get" action="/riesgos/">
+    <input type="submit" value="Regresar">
+</form>
+{% endif %}
+
+{% if hayProyectos %}
+    {% if hayRiesgos %}
+    <div class="contenido-tabla">
+        <table class="table table-hover">
+            <tr>
+                <th colspan="5">Nombre del proyecto</th>
+            </tr>
+            <tr>
+                <td colspan="5" style='text-align:center; vertical-align:middle'>{{proyecto.nombre}}</td>
+            </tr>
+            {% for riesgo in proyecto.riesgos.all %}
+            <tr>
+                <td>Riesgo {{ forloop.counter }}</td>
+                <td>{{riesgo.titulo}}</td>
+                <td>{{riesgo.descripcion}}</td>
+                <td>{{riesgo.gravedad}}</td>
+                <td>
+                    <a class="btn" href="/eliminarRiesgo/{{ riesgo.id }}/">Eliminar riesgo</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        <footer>
+            <nav class="nav-opciones-equipo">
+                <a class="btn" href="/editarRiesgos/{{ riesgos.proyecto.id }}">Agregar riesgo</a>
+            </nav>
+        </footer>
+    </div>
+    {% else %}
+    
+    <div class="contenido-tabla">
+        <table class="table table-hover">
+            <tr>
+                <th colspan="1">Nombre del equipo</th>
+            </tr>
+            <tr>
+                <td colspan="1" style='text-align:center; vertical-align:middle'>No se encontraron riesgos en este proyecto</td>
+            </tr>
+        </table>
+        <footer>
+            <nav class="nav-opciones-equipo">
+                <a class="btn" href="/agregarRiesgo/{{id_proyecto}}">Agregar riesgos</a>
+            </nav>
+        </footer>
+    </div>
+    {% endif %}
+
+{% else %}
+    <div class="container text-center">
+        <h1>Proyectos disponibles:</h1>
+        <table class="table table-hover">
+            <tr>
+                <th>Nombre del proyecto</th>
+                <th>Inicio</th>
+                <th>Termina</th>
+            </tr>
+            {% for proyecto in proyectos %}
+                <tr>
+                    <td>
+                        <form method="post" action="/riesgos/">
+                            {% csrf_token %}
+                            <input type="submit" name="{{proyecto.nombre}}" value="{{proyecto.nombre}}">
+                        </form>
+                    </td>
+                    <td>{{proyecto.fechaInicio}}</td>
+                    <td>{{proyecto.fechaFin}}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endif %}
+
+{% endblock %}

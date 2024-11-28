@@ -1,28 +1,66 @@
 {% extends "mainPage/base.html" %}
 
-
-
-{% block content%}
-
+{% block content %}
 
 <div class="contenido">
     <form action="/crearProyecto/" method="POST">
         {% csrf_token %}
         <header>
-            <h2> Crear proyecto</h2>
+            <h2> Crear proyecto </h2>
         </header>
         <section>
             <label class="requerido">Nombre del proyecto:</label>
-            <input type="text" name="nombre-proyecto" required>
+            <input type="text" name="nombre-proyecto" class="small-input" required>
 
             <hr/>
             <label class="requerido">Fecha de inicio:</label>
-            <input type="date" name="fecha-inicio" required>
+            <input type="date" name="fecha-inicio" class="small-input" required>
 
             <hr/>
             <label class="requerido">Fecha de fin:</label>
-            <input type="date" name="fecha-fin" required>
-            <hr>
+            <input type="date" name="fecha-fin" class="small-input" required>
+
+            <hr/>
+
+            <h3>Recursos Tecnológicos</h3>
+            <hr/>
+            <label>Editores de código:</label>
+            <input type="text" name="editores-codigo" class="small-input" placeholder="Ejemplo: Visual Studio Code, PyCharm, etc.">
+
+            <label>Control de versiones:</label>
+            <input type="text" name="control-versiones" class="small-input" placeholder="Ejemplo: Git, SVN, etc.">
+
+            <hr/>
+            <label>Hardware disponible:</label>
+            <textarea name="hardware" class="small-textarea" rows="3" placeholder="Ejemplo: Computadoras, servidores, dispositivos móviles, etc."></textarea>
+
+            <hr/>
+            <label>Herramientas de prueba:</label>
+            <textarea name="herramientas-prueba" class="small-textarea" rows="3" placeholder="Ejemplo: Selenium, JUnit, etc."></textarea>
+
+            <hr/>
+            <label>Canal de comunicación:</label>
+            <input type="text" name="canal-comunicacion" class="small-input" placeholder="Ejemplo: Slack, Teams, correo electrónico, etc.">
+
+            <hr/>
+
+            <h3>Recurso Financiero</h3>
+            <label>Presupuesto:</label>
+            <input type="number" name="recurso-financiero" class="small-input" step="0.01" placeholder="Ejemplo: 50000">
+            
+            <h3>Estándares y Plantillas</h3>
+            <label>Detalles:</label>
+            <textarea name="estandares-plantillas" class="small-textarea" rows="3" placeholder="Ejemplo: Plantillas para reportes, estándares de código, etc."></textarea>
+
+            <hr/>
+
+            <h3>Reuniones y Reportes</h3>
+            <label>Frecuencia:</label>
+            <input type="text" name="frecuencia-reuniones" class="small-input" placeholder="Ejemplo: Semanal, quincenal, mensual, etc.">
+
+            <hr/>
+            <label>Entrega de reportes:</label>
+            <textarea name="entrega-reportes" class="small-textarea" rows="3" placeholder="Ejemplo: Cada fin de sprint, semanal, etc."></textarea>
         </section>
 
         <footer>
@@ -32,6 +70,23 @@
             </nav>
         </footer>
     </form>
-</div>  <!-- Se termina el div contenido -->
+</div>
+
+<style>
+    .small-input {
+        width: 100%;
+        padding: 8px;
+        font-size: 0.9em;
+        margin-bottom: 10px;
+    }
+
+    .small-textarea {
+        width: 100%;
+        padding: 8px;
+        font-size: 0.9em;
+        margin-bottom: 10px;
+        resize: vertical;
+    }
+</style>
 
 {% endblock %}

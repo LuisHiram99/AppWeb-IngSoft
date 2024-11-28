@@ -30,79 +30,87 @@
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            {% if user.is_authenticated %}
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'mP-home' %}">Inicio</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'profile' %}">Perfil</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'crearProyecto' %}">Crear proyecto</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-content" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Herramientas
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="{% url 'equipo' %}">Equipo</a>
-                        <a class="dropdown-item" href="{% url 'reportes' %}">Reportes</a>
-                        <a class="dropdown-item" href="{% url 'historias' %}">Historias de usuario</a>
-                        <a class="dropdown-item" href="{% url 'calendario' %}">Calendario</a>
-                    </div>
-                </li>
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                {% if user.is_authenticated %}
+                <ul class="navbar-nav ml-auto"> 
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'mP-home' %}">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'lista_proyectos' %}">Proyecto</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Herramientas
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="{% url 'equipo' %}">Equipo</a>
+                            <a class="dropdown-item" href="{% url 'reportes' %}">Reportes</a>
+                            <a class="dropdown-item" href="{% url 'historias' %}">Historias de Usuario</a>
+                            <a class="dropdown-item" href="{% url 'riesgos' %}">Riesgos del proyecto</a>
+                            <a class="dropdown-item" href="{% url 'calendario' %}">Calendario</a>
+                        </div>
+                    </li>
 
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-content" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Notificaciones
-                    </a>
+                        <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-content" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Notificaciones
+                        </a>
 
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        {% if notifications %}
-                            {% for notif in notifications %}
-                                <a class="dropdown-item">
-                                    {{ notif.msg }}
-                                    <br><small>{{ notif.time|date:"d M Y H:i" }}</small>
-                                </a>
-                            {% endfor %}
-                        {% else %}
-                            <a class="dropdown-item text-muted">No hay notificaciones</a>
-                        {% endif %}
-                    </div>
-                </li>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            {% if notifications %}
+                                {% for notif in notifications %}
+                                    <a class="dropdown-item">
+                                        {{ notif.msg }}
+                                        <br><small>{{ notif.time|date:"d M Y H:i" }}</small>
+                                    </a>
+                                {% endfor %}
+                            {% else %}
+                                <a class="dropdown-item text-muted">No hay notificaciones</a>
+                            {% endif %}
+                        </div>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'logout' %}">Cerrar sesión</a>
-                </li>
-
-            {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'register' %}">Registrarse</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'login' %}">login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'outside' %}">Inicio</a>
-                </li>
-            {% endif %}
-            </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'profile' %}">Perfil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a>
+                    </li>
+                </ul>
+                {% else %}
+                <ul class="navbar-nav ml-auto"> 
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'outside' %}">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">Registrarse</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
+                    </li>
+                </ul>
+                {% endif %}
+            </div>
         </div>
     </nav>
 
-
     <div>
         {% if messages %}
-            {% for message in  messages %}
+            {% for message in messages %}
                 <div class="alert alert-{{message.tags}}">
                     {{ message }}
                 </div>
             {% endfor %}
         {% endif %}
     </div>
-        
+</body>
+
 
 <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -113,7 +121,7 @@
 
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-</body>
+
 
 {% block content %}{% endblock %}
 <html>

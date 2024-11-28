@@ -1,0 +1,103 @@
+{% extends "mainPage/base.html" %}
+
+{% block content %}
+<div class="contenido" style="margin: 20px;">
+    <header>
+        <h2 style="text-align: center;">Detalle del Proyecto: {{ proyecto.nombre }}</h2>
+    </header>
+    <section style="margin-top: 20px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+        <div style="margin-bottom: 20px;">
+            <label><strong>Fecha de inicio:</strong></label>
+            <p>{{ proyecto.fechaInicio }}</p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label><strong>Fecha de fin:</strong></label>
+            <p>{{ proyecto.fechaFin }}</p>
+        </div>
+        <hr/>
+        <h3 style="margin-top: 20px;">Recurso Financiero</h3>
+        <div style="margin-bottom: 20px;">
+            <div style="margin-bottom: 20px;">
+                <label><strong>Presupuesto:</strong></label>
+                <p>${{ proyecto.recurso_financiero }}</p>
+            </div>
+        </div>
+
+
+        <h3 style="margin-top: 20px;">Recursos Tecnológicos</h3>
+        <div style="margin-bottom: 20px;">
+            {% if proyecto.recursos_tecnologicos %}
+            {% for recurso in proyecto.recursos_tecnologicos.splitlines %}
+            <p>{{ recurso }}</p>
+            {% endfor %}
+            {% else %}
+            <p>No especificado</p>
+            {% endif %}
+        </div>
+
+        <h3 style="margin-top: 20px;">Estándares y Plantillas</h3>
+        <div style="margin-bottom: 20px;">
+            {% if proyecto.estandares_y_plantillas %}
+            {% for plantilla in proyecto.estandares_y_plantillas.splitlines %}
+            <p>{{ plantilla }}</p>
+            {% endfor %}
+            {% else %}
+            <p>No especificado</p>
+            {% endif %}
+        </div>
+
+        <h3 style="margin-top: 20px;">Reuniones y Reportes</h3>
+        <div style="margin-bottom: 20px;">
+            {% if proyecto.reuniones_y_reportes %}
+            {% for reporte in proyecto.reuniones_y_reportes.splitlines %}
+            <p>{{ reporte }}</p>
+            {% endfor %}
+            {% else %}
+            <p>No especificado</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <footer style="margin-top: 20px; text-align: center;">
+        <a class="btn btn-secondary" href="{% url 'lista_proyectos' %}">Volver</a>
+        {% if proyecto.gestorProyecto == user %}
+        <a class="btn btn-primary" href="{% url 'editar_proyecto' proyecto.id %}">Editar Proyecto</a>
+        {% endif %}
+    </footer>
+</div>
+
+<style>
+    .contenido label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .contenido p {
+        margin: 0 0 10px 0;
+        padding: 8px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .contenido h3 {
+        margin-top: 20px;
+        font-size: 18px;
+        color: #333;
+        font-weight: bold;
+    }
+
+    .contenido hr {
+        border: none;
+        border-top: 1px solid #ddd;
+        margin: 20px 0;
+    }
+
+    .contenido footer a {
+        margin-top: 10px;
+        display: inline-block;
+    }
+</style>
+{% endblock %}

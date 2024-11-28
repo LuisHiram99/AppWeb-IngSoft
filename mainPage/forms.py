@@ -2,10 +2,18 @@
 from django import forms
 from .models import Reportes,Proyecto, Miembro
 
-class ProyectForm(forms.ModelForm):
+class ProyectoForm(forms.ModelForm):
     class Meta:
         model = Proyecto
-        fields = ['nombre', 'fechaInicio', 'fechaFin']
+        fields = [
+            'nombre',
+            'fechaInicio',
+            'fechaFin',
+            'recursos_tecnologicos',
+            'recurso_financiero',
+            'estandares_y_plantillas',
+            'reuniones_y_reportes',
+        ]
 
 class ReportForm(forms.ModelForm):
     class Meta:

@@ -1,9 +1,19 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from users.models import Profile
+from django.utils.timezone import now
 
 
-# Create your models here.
+class RiesgoProyecto(models.Model):
+    id = models.AutoField(primary_key=True)
+    Titulo = models.CharField('Titulo del riesgo',max_length=70,blank=True,null=True)
+    descripcion = models.TextField('Descripción del riesgo',blank=True,null=True)
+    gravedad = models.PositiveSmallIntegerField('Nivel de gravedad del riesgo',blank=True,null=True)
+    proyecto = models.ForeignKey('Proyecto',on_delete=models.CASCADE,related_name="riesgos", blank=True)
+
+    def __str__(self):
+        datosFila = "Titulo riesgo: " + self.Titulo
+        return datosFila
 
 class Miembro(models.Model):
     id = models.AutoField(primary_key=True)
@@ -61,6 +71,11 @@ class Proyecto(models.Model):
     #el proyecto tiene una relación OneToMany con Historias de usuario, ver la def de la clase ↑
     equipo = models.OneToOneField(Equipo,on_delete=models.CASCADE,related_name="proyecto",blank=True)
     gestorProyecto = models.ForeignKey('User',on_delete=models.CASCADE,blank=True,null=True)
+    #Recursos
+    recursos_tecnologicos = models.TextField('Recursos Tecnológicos', blank=True, null=True)
+    recurso_financiero = models.DecimalField('Presupuesto', max_digits=10, decimal_places=2, blank=True, null=True)
+    estandares_y_plantillas = models.TextField('Estándares y Plantillas', blank=True, null=True)
+    reuniones_y_reportes = models.TextField('Reuniones y Reportes', blank=True, null=True)
 
     def __str__(self):
         datosFila = "Nombre proyecto: " + self.nombre + " - Fecha inicio: " + str(self.fechaInicio)
@@ -102,6 +117,7 @@ class Reportes(models.Model):
     def __str__(self):
         return self.title
 
+
 class Notif (models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, default=1)
     msg = models.CharField(max_length=100)
@@ -109,3 +125,12 @@ class Notif (models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.msg}"
+
+    
+class Notification(models.Model):
+        user = models.ForeignKey(User, related_name="notifications", on_delete=models.CASCADE)
+        message = models.TextField()
+        link = models.URLField(blank=True, null=True)
+        is_read = models.BooleanField(default=False)
+        created_at = models.DateTimeField(auto_now_add=True)
+
