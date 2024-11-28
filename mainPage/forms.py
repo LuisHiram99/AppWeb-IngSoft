@@ -1,6 +1,7 @@
 
 from django import forms
-from .models import Reportes,Proyecto, Miembro
+from .models import Reportes, Proyecto, Miembro, Checklist, HistoriaUsuario
+
 
 class ProyectoForm(forms.ModelForm):
     class Meta:
@@ -33,3 +34,16 @@ class AsignarRolForm(forms.ModelForm):
                 (3, 'Programador'),
             ]),
         }
+
+class ChecklistForm(forms.ModelForm):
+    class Meta:
+        model = Checklist
+        fields = ['name', 'historias']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del checklist'}),
+            'historias': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        }
+historias = forms.ModelMultipleChoiceField(
+        queryset=HistoriaUsuario.objects.all(),
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+    )
